@@ -1,0 +1,1263 @@
+
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Circa Adivina</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna tipo app móvil, tarjetas de papel con borde grueso sobre fondo cobalto, regla de línea de tiempo como motivo */
+:root{
+  --bg:#2430e8; --bg2:#1a23b5; --ink:#0d0f2b; --paper:#fbfbff; --paper2:#e4e7ff;
+  --accent:#ffd23f; --good:#1fbf6a; --bad:#ff4d5e; --mid:#ffb02e; --muted:#c9ceff;
+  --display:'Bricolage Grotesque','Arial Black',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'DM Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{
+  margin:0; background:var(--bg); color:#fff; font:400 16px/1.45 var(--body);
+  padding-block:16px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:radial-gradient(rgba(255,255,255,.12) 1.5px,transparent 1.5px);
+  background-size:22px 22px;
+  -webkit-tap-highlight-color:transparent;
+}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0}
+section{display:flex;flex-direction:column;gap:16px;min-width:0}
+h1,h2,h3,p{margin:0}
+button{font:inherit;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+.card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:18px;min-width:0}
+.btn{display:block;width:100%;font:800 17px/1.1 var(--display);background:var(--accent);color:var(--ink);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:14px 18px;cursor:pointer;text-align:center}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.alt{background:var(--paper)}
+.btn.small{width:auto;display:inline-block;padding:9px 14px;font-size:15px}
+.ghost{background:rgba(13,15,43,.35);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 0;min-width:0}
+
+/* Home */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand{font:800 clamp(44px,15vw,68px)/.86 var(--display);letter-spacing:-.04em;text-transform:uppercase}
+.brand small{display:block;font:500 15px/1 var(--mono);letter-spacing:.18em;color:var(--accent);margin-top:8px;text-transform:uppercase}
+.lvl{background:var(--ink);border-radius:14px;padding:10px 12px;min-width:118px;border:2px solid rgba(255,255,255,.35)}
+.lvl b{display:block;font:800 15px var(--display)}
+.lvl span{font:500 12px var(--mono);color:var(--muted)}
+.xp{height:8px;border-radius:9px;background:rgba(255,255,255,.2);margin-top:7px;overflow:hidden}
+.xp i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.ruler{position:relative;height:64px;margin-top:2px}
+.ruler::before{content:"";position:absolute;left:0;right:0;bottom:10px;height:16px;
+  background:repeating-linear-gradient(90deg,#fff 0 3px,transparent 3px 14px) bottom/100% 16px no-repeat}
+.ruler::after{content:"";position:absolute;left:0;right:0;bottom:8px;height:3px;background:#fff;border-radius:3px}
+.flag{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--ink);border:3px solid var(--ink);border-radius:10px;padding:3px 10px;font:500 17px var(--mono);box-shadow:0 3px 0 var(--ink);transition:left .9s cubic-bezier(.3,1.4,.5,1);white-space:nowrap}
+.flag::after{content:"";position:absolute;left:50%;bottom:-9px;width:3px;height:9px;background:var(--ink);transform:translateX(-50%)}
+.daily{background:var(--accent);display:flex;flex-direction:column;gap:10px}
+.daily .tag{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.daily h2{font:800 28px/1 var(--display);letter-spacing:-.02em}
+.daily p{font-size:15px}
+.streak{display:inline-flex;gap:6px;align-items:center;font:500 14px var(--mono)}
+.btn.dark{background:var(--ink);color:#fff}
+.sect{font:500 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mode{all:unset;box-sizing:border-box;cursor:pointer;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mode:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.mode:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.mode .ic{align-self:flex-start;background:var(--ink);color:var(--accent);font:500 14px var(--mono);padding:4px 9px;border-radius:9px}
+.mode b{font:800 20px/1 var(--display)}
+.mode span{font-size:14px;line-height:1.3}
+.mode em{font:500 12px var(--mono);font-style:normal;color:#5a5f99;margin-top:auto}
+.mode.logrobtn{flex-direction:row;justify-content:space-between;align-items:center;gap:10px;text-align:left}
+
+/* Game */
+.hud{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hud-mid{font:500 14px var(--mono);display:flex;gap:10px;align-items:center;justify-content:center;flex:1;min-width:0}
+.hud-mid b{font:800 16px var(--display)}
+.hud-score{font:500 22px var(--mono);min-width:72px;text-align:right}
+.lives{display:inline-flex;gap:4px}
+.lives i{width:12px;height:12px;border-radius:50%;background:var(--bad);border:2px solid var(--ink)}
+.lives i.off{background:transparent;border-color:rgba(255,255,255,.5)}
+.bar{height:10px;border-radius:9px;background:rgba(13,15,43,.4);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.tag{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#4a4f8f}
+.ev{font:800 clamp(22px,6.4vw,28px)/1.12 var(--display);letter-spacing:-.02em;margin-top:8px;text-wrap:balance}
+.year{font:500 clamp(52px,17vw,76px)/1 var(--mono);text-align:center;letter-spacing:-.04em;margin:6px 0 0}
+.bounds{display:flex;justify-content:space-between;font:500 13px var(--mono);color:#4a4f8f;margin-top:-2px}
+.nudge{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.nudge button{background:var(--paper2);color:var(--ink);border:3px solid var(--ink);border-radius:12px;padding:9px 0;font:500 16px var(--mono);cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.nudge button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:38px;background:transparent;margin:6px 0 0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:16px;box-sizing:border-box;background:var(--paper2);border:3px solid var(--ink);border-radius:99px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:36px;height:36px;margin-top:-10px;border-radius:50%;background:var(--accent);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
+input[type=range]::-moz-range-track{height:10px;background:var(--paper2);border:3px solid var(--ink);border-radius:99px}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:var(--accent);border:3px solid var(--ink)}
+input[type=range]:disabled{opacity:.6}
+
+.fb{border-radius:16px;border:3px solid var(--ink);padding:14px;color:var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;flex-direction:column;gap:6px}
+.fb.good{background:#9df0c3}.fb.mid{background:#ffe08a}.fb.bad{background:#ffb3bb}
+.fb .big{font:800 26px/1.05 var(--display);letter-spacing:-.02em}
+.fb .pts{font:500 15px var(--mono)}
+.fb p{font-size:15px}
+.scale{position:relative;height:74px;margin:6px 8px 0}
+.scale .line{position:absolute;left:0;right:0;top:35px;height:4px;background:var(--ink);border-radius:4px}
+.pin{position:absolute;transform:translateX(-50%);font:500 13px var(--mono);padding:2px 8px;border:2px solid var(--ink);border-radius:9px;white-space:nowrap;background:var(--paper)}
+.pin.me{top:0}
+.pin.real{bottom:0;background:var(--ink);color:var(--accent)}
+.dot{position:absolute;top:29px;width:16px;height:16px;transform:translateX(-50%);border-radius:50%;border:3px solid var(--ink)}
+.dot.me{background:var(--paper)}.dot.real{background:var(--accent)}
+
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:16px;font:800 clamp(18px,5vw,22px)/1.15 var(--display);letter-spacing:-.01em;display:flex;flex-direction:column;gap:6px;min-width:0}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.opt:active:not(.lock){transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.opt .yr{font:500 18px var(--mono);display:none}
+.opt.lock{cursor:default}
+.opt.lock .yr{display:block}
+.opt.ok{background:#9df0c3}.opt.no{background:#ffb3bb}
+.vs{align-self:center;font:500 14px var(--mono);color:var(--muted);margin:-4px 0}
+.ord{display:flex;flex-direction:column;gap:10px;margin:12px 0 0;padding:0;list-style:none}
+.ord button,.ord li{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;background:var(--paper2);color:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:12px;font:700 17px/1.2 var(--body);min-width:0;width:100%}
+.ord button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.ord .n{flex:none;width:34px;height:34px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:500 16px var(--mono);background:var(--paper)}
+.ord button.sel{background:var(--accent)}
+.ord button.sel .n{background:var(--ink);color:var(--accent)}
+.ord li{cursor:default}
+.ord li.ok{background:#9df0c3}.ord li.no{background:#ffb3bb}
+.ord .y{margin-left:auto;font:500 15px var(--mono);flex:none}
+.numrow{display:flex;gap:10px;align-items:center;margin-top:14px}
+.numrow input{flex:1;min-width:0;font:500 clamp(28px,9vw,40px) var(--mono);color:var(--ink);background:var(--paper2);border:3px solid var(--ink);border-radius:14px;padding:10px 12px}
+.numrow input:disabled{opacity:.7}
+.numrow span{font:700 15px var(--body);max-width:40%}
+.msg{font:500 14px var(--mono);color:#b00020;min-height:20px;margin-top:6px}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pop{animation:pop .35s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.92);opacity:.4}to{transform:none;opacity:1}}
+
+/* End */
+.endcard{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.endcard h2{font:800 30px/1 var(--display);letter-spacing:-.02em}
+.score{font:500 clamp(54px,18vw,80px)/1 var(--mono);letter-spacing:-.04em}
+.stars{display:flex;gap:8px}
+.stars i{width:34px;height:34px;background:var(--paper2);border:3px solid var(--ink);clip-path:none;border-radius:50%}
+.stars i.on{background:var(--accent)}
+.squares{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.squares i{width:24px;height:24px;border-radius:7px;border:3px solid var(--ink)}
+.squares .g{background:var(--good)}.squares .y{background:var(--mid)}.squares .r{background:var(--bad)}
+.xpgain{font:500 14px var(--mono);color:#4a4f8f}
+textarea.share{width:100%;height:96px;resize:none;font:500 14px/1.4 var(--mono);border:3px solid var(--ink);border-radius:12px;background:var(--paper2);color:var(--ink);padding:10px}
+
+/* Logros */
+.logros{display:flex;flex-direction:column;gap:12px}
+.lg{display:flex;gap:12px;align-items:center}
+.lg .badge{flex:none;width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:500 14px var(--mono);background:var(--paper2)}
+.lg.done .badge{background:var(--accent)}
+.lg b{font:800 17px/1.1 var(--display)}
+.lg p{font-size:14px;color:#4a4f8f}
+.lg .pg{height:7px;border-radius:9px;background:var(--paper2);border:2px solid var(--ink);margin-top:6px;overflow:hidden}
+.lg .pg i{display:block;height:100%;background:var(--ink)}
+.lg>div{min-width:0;flex:1}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,420px)}
+#toast div{background:var(--ink);color:#fff;border:3px solid var(--accent);border-radius:14px;padding:10px 14px;font:700 15px var(--body);box-shadow:0 4px 0 rgba(0,0,0,.4);animation:pop .35s}
+#toast b{color:var(--accent)}
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30}
+.cf{position:absolute;left:50%;top:48%;width:10px;height:15px;border-radius:2px;animation:cf 1.2s cubic-bezier(.25,.6,.45,1) forwards}
+@keyframes cf{0%{transform:translate(0,0) rotate(0);opacity:1}35%{transform:translate(calc(var(--dx)*.7),var(--up)) rotate(calc(var(--rot)*.4));opacity:1}100%{transform:translate(var(--dx),var(--down)) rotate(var(--rot));opacity:0}}
+.flash{position:absolute;inset:0;animation:flash .6s ease-out forwards}
+.flash.good{background:radial-gradient(circle at 50% 50%,rgba(31,191,106,0) 35%,rgba(31,191,106,.5))}
+.flash.bad{background:radial-gradient(circle at 50% 50%,rgba(255,77,94,0) 30%,rgba(255,77,94,.65))}
+@keyframes flash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.float{position:absolute;left:50%;top:38%;font:800 clamp(40px,12vw,58px)/1 var(--display);color:var(--accent);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;animation:rise 1.05s ease-out forwards;white-space:nowrap}
+.float.bad{color:var(--bad)}
+.float.lab{top:26%;font-size:clamp(26px,8vw,36px);color:#fff}
+@keyframes rise{0%{transform:translate(-50%,16px) scale(.5);opacity:0}20%{transform:translate(-50%,-6px) scale(1.15);opacity:1}100%{transform:translate(-50%,-90px) scale(1);opacity:0}}
+@keyframes bounce{0%{transform:scale(.82)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes wobble{0%,100%{transform:none}20%{transform:translateX(-10px) rotate(-1deg)}40%{transform:translateX(9px) rotate(1deg)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@keyframes shakeAll{0%,100%{transform:none}15%{transform:translate(-9px,3px)}35%{transform:translate(8px,-3px)}55%{transform:translate(-6px,2px)}75%{transform:translate(4px,-1px)}}
+.fb.good{animation:bounce .55s cubic-bezier(.3,1.5,.5,1)}
+.fb.bad{animation:wobble .5s}
+.opt.ok{animation:bounce .55s cubic-bezier(.3,1.5,.5,1)}
+.opt.no{animation:wobble .5s}
+.ord li.ok{animation:bounce .5s both}
+.ord li.no{animation:wobble .5s both}
+body.hit .app{animation:shakeAll .45s}
+.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.coinpill{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:#fff;border:2px solid rgba(255,255,255,.35);border-radius:99px;padding:3px 11px 3px 4px;font:500 14px var(--mono)}
+.coinpill.big{font-size:18px;padding:4px 14px 4px 5px}
+.coinpill.pulse{animation:pulse .3s}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+.coin{display:inline-grid;place-items:center;flex:none;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2a8,#ffd23f 55%,#e0a800);border:2px solid var(--ink);box-shadow:inset -2px -2px 0 rgba(0,0,0,.18);font:800 11px/1 var(--display);color:var(--ink);font-style:normal}
+.coin::after{content:"L"}
+.coinpill.big .coin{width:26px;height:26px;font-size:14px}
+.coin.fly{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px;font-size:15px;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.fb .pts.coinline{font-weight:500}
+.ms{display:flex;flex-direction:column;gap:10px}
+.msrow{display:flex;gap:12px;align-items:center}
+.msrow>div{min-width:0;flex:1}
+.msrow b{font:800 17px/1.1 var(--display)}
+.msrow p{font-size:14px;color:#4a4f8f}
+.msrow .btn{width:auto;flex:none;padding:10px 14px;font-size:15px}
+.msrow.done{opacity:.6}
+.sw{flex:none;width:44px;height:44px;border-radius:12px;border:3px solid var(--ink)}
+.hintbtn{margin-top:10px}
+.pg2{height:8px;border-radius:9px;background:var(--paper2);border:2px solid var(--ink);margin-top:6px;overflow:hidden}
+.pg2 i{display:block;height:100%;background:var(--ink)}
+.plain{font-size:15px;color:#2b2e5e}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <section id="home"></section>
+  <section id="game" hidden>
+    <div class="hud">
+      <button class="ghost" id="quit" type="button">Salir</button>
+      <div class="hud-mid" id="hudMid"></div>
+      <div class="hud-right"><div class="hud-score" id="hudScore">0</div><div class="coinpill"><i class="coin"></i><b class="cn">0</b></div></div>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div id="stage" class="opts"></div>
+  </section>
+  <section id="end" hidden></section>
+  <section id="logros" hidden></section>
+  <section id="premios" hidden></section>
+</div>
+<div id="toast" aria-live="polite"></div>
+<div id="fx" aria-hidden="true"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s);};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+var nf=function(n){return Number(n).toLocaleString('es-ES');};
+
+/* ---------- Datos ---------- */
+var EV=[
+[476,"Cae el Imperio romano de Occidente"],
+[1066,"Batalla de Hastings: los normandos conquistan Inglaterra"],
+[1450,"Gutenberg imprime con tipos móviles en Maguncia"],
+[1492,"Cristóbal Colón llega a América"],
+[1522,"Termina la primera vuelta al mundo de Magallanes y Elcano"],
+[1605,"Se publica la primera parte del Quijote"],
+[1616,"Muere Miguel de Cervantes"],
+[1776,"Estados Unidos declara su independencia"],
+[1789,"Comienza la Revolución Francesa"],
+[1876,"Graham Bell patenta el teléfono"],
+[1879,"Edison presenta su bombilla de uso práctico"],
+[1903,"Los hermanos Wright realizan el primer vuelo con motor"],
+[1905,"Einstein publica la teoría de la relatividad especial"],
+[1912,"El Titanic se hunde en el Atlántico"],
+[1914,"Estalla la Primera Guerra Mundial"],
+[1917,"Revolución rusa de octubre"],
+[1928,"Fleming descubre la penicilina"],
+[1930,"Se juega el primer Mundial de fútbol, en Uruguay"],
+[1941,"Ataque japonés a Pearl Harbor"],
+[1945,"Termina la Segunda Guerra Mundial"],
+[1953,"Watson y Crick describen la doble hélice del ADN"],
+[1961,"Se empieza a levantar el Muro de Berlín"],
+[1967,"Primer trasplante de corazón humano"],
+[1969,"El ser humano pisa la Luna por primera vez"],
+[1972,"Sale al mercado el videojuego Pong"],
+[1975,"Muere Francisco Franco"],
+[1976,"Se funda Apple"],
+[1977,"Se estrena la primera película de Star Wars"],
+[1978,"Se aprueba la Constitución española"],
+[1980,"Llega a los recreativos el Pac-Man"],
+[1984,"Alekséi Pázhitov crea el Tetris"],
+[1985,"Sale Super Mario Bros. en Japón"],
+[1986,"Accidente nuclear de Chernóbil"],
+[1989,"Cae el Muro de Berlín"],
+[1989,"Se emite el primer episodio de Los Simpson"],
+[1990,"Nelson Mandela sale de prisión"],
+[1992,"Juegos Olímpicos de Barcelona"],
+[1994,"Se estrena El rey león de Disney"],
+[1994,"Se estrena la serie Friends"],
+[1994,"Sale la primera PlayStation en Japón"],
+[1994,"Jeff Bezos funda Amazon"],
+[1995,"Se estrena Toy Story, primera película íntegra en 3D"],
+[1995,"Microsoft lanza Windows 95"],
+[1996,"Nace la oveja Dolly"],
+[1996,"Pokémon Rojo y Azul salen en Japón"],
+[1997,"Muere Diana de Gales"],
+[1997,"Se estrena la película Titanic"],
+[1998,"Larry Page y Sergey Brin fundan Google"],
+[2001,"Atentados del 11 de septiembre en Estados Unidos"],
+[2001,"Se estrena Harry Potter y la piedra filosofal"],
+[2002,"El euro llega a los bolsillos de los españoles"],
+[2004,"Mark Zuckerberg lanza Facebook"],
+[2005,"Se publica el primer vídeo de YouTube"],
+[2006,"Se funda Twitter"],
+[2007,"Apple presenta el primer iPhone"],
+[2008,"España gana la Eurocopa de Austria y Suiza"],
+[2008,"Barack Obama es elegido presidente de Estados Unidos"],
+[2008,"Nace Spotify"],
+[2009,"Muere Michael Jackson"],
+[2009,"Se lanza WhatsApp"],
+[2009,"Se estrena Avatar de James Cameron"],
+[2010,"España gana el Mundial de Sudáfrica"],
+[2010,"Se lanza Instagram"],
+[2011,"Se estrena Juego de tronos"],
+[2011,"Minecraft sale en su versión completa"],
+[2013,"Sale a la venta GTA V"],
+[2016,"Pokémon GO arrasa en todo el mundo"],
+[2016,"El Reino Unido vota salir de la Unión Europea"],
+[2017,"Nintendo lanza la consola Switch"],
+[2017,"Fortnite se lanza al público"],
+[2018,"Among Us aparece en móviles y ordenador"],
+[2019,"Incendio en la catedral de Notre-Dame"],
+[2020,"La OMS declara la pandemia de COVID-19"],
+[2022,"Argentina gana el Mundial de Catar"],
+[2022,"OpenAI lanza ChatGPT"],
+[2022,"Muere la reina Isabel II"],
+[2023,"España gana el Mundial femenino de fútbol"],
+[79,"La erupción del Vesubio entierra Pompeya"],
+[711,"Los ejércitos musulmanes cruzan el estrecho hacia la península ibérica"],
+[800,"Carlomagno es coronado emperador en Roma"],
+[1085,"Alfonso VI conquista Toledo"],
+[1095,"El papa Urbano II convoca la Primera Cruzada"],
+[1212,"Batalla de las Navas de Tolosa"],
+[1215,"Se firma la Carta Magna en Inglaterra"],
+[1236,"Fernando III conquista Córdoba"],
+[1453,"Los otomanos conquistan Constantinopla"],
+[1469,"Se casan Isabel de Castilla y Fernando de Aragón"],
+[1492,"Los Reyes Católicos toman Granada"],
+[1517,"Lutero publica sus 95 tesis"],
+[1519,"Hernán Cortés llega a México"],
+[1543,"Copérnico publica su teoría heliocéntrica"],
+[1571,"Batalla naval de Lepanto"],
+[1588,"Fracasa la Armada Invencible"],
+[1609,"Galileo apunta un telescopio al cielo"],
+[1648,"La Paz de Westfalia pone fin a la guerra de los Treinta Años"],
+[1687,"Newton publica los Principia"],
+[1769,"James Watt patenta su máquina de vapor mejorada"],
+[1796,"Edward Jenner prueba la primera vacuna contra la viruela"],
+[1804,"Napoleón se corona emperador de los franceses"],
+[1805,"Batalla de Trafalgar"],
+[1808,"Comienza la Guerra de la Independencia española"],
+[1812,"Se aprueba la Constitución de Cádiz"],
+[1815,"Napoleón pierde en Waterloo"],
+[1859,"Darwin publica El origen de las especies"],
+[1861,"Estalla la guerra de Secesión en Estados Unidos"],
+[1869,"Mendeléyev presenta su tabla periódica"],
+[1869,"Se inaugura el Canal de Suez"],
+[1886,"Se inaugura la Estatua de la Libertad"],
+[1886,"Nace la Coca-Cola en Atlanta"],
+[1889,"Se inaugura la Torre Eiffel"],
+[1895,"Los hermanos Lumière proyectan la primera película ante el público"],
+[1895,"Röntgen descubre los rayos X"],
+[1896,"Primeros Juegos Olímpicos modernos en Atenas"],
+[1898,"España pierde Cuba, Puerto Rico y Filipinas"],
+[1898,"Marie y Pierre Curie descubren el radio"],
+[1908,"Ford presenta el Modelo T"],
+[1915,"Einstein presenta la relatividad general"],
+[1918,"Termina la Primera Guerra Mundial"],
+[1925,"Se publica El gran Gatsby"],
+[1927,"Se estrena la primera película sonora, El cantante de jazz"],
+[1928,"Mickey Mouse debuta en Steamboat Willie"],
+[1929,"Crac de la Bolsa de Nueva York"],
+[1929,"Edwin Hubble demuestra que el universo se expande"],
+[1931,"Se proclama la Segunda República española"],
+[1936,"Comienza la Guerra Civil española"],
+[1937,"Picasso pinta el Guernica"],
+[1937,"Se estrena Blancanieves, primer largometraje de Disney"],
+[1937,"Se publica El hobbit"],
+[1938,"Se descubre la fisión nuclear"],
+[1938,"Sale al mercado el Nescafé"],
+[1939,"Termina la Guerra Civil española"],
+[1939,"Comienza la Segunda Guerra Mundial"],
+[1939,"Se estrena Lo que el viento se llevó"],
+[1942,"Se estrena Casablanca"],
+[1943,"Se publica El principito"],
+[1945,"Bombas atómicas sobre Hiroshima y Nagasaki"],
+[1946,"Se presenta ENIAC, uno de los primeros ordenadores electrónicos"],
+[1947,"Se inventa el transistor"],
+[1948,"Se funda el Estado de Israel"],
+[1949,"Nace la OTAN"],
+[1949,"George Orwell publica 1984"],
+[1950,"El Maracanazo: Uruguay gana el Mundial en Brasil"],
+[1954,"Se publica El señor de los anillos"],
+[1955,"Ray Kroc abre el primer McDonald's de la cadena"],
+[1957,"La URSS lanza el Sputnik"],
+[1957,"Se firma el Tratado de Roma"],
+[1959,"Triunfa la revolución cubana"],
+[1960,"Se estrena Psicosis de Hitchcock"],
+[1961,"Yuri Gagarin, primer humano en el espacio"],
+[1962,"Crisis de los misiles de Cuba"],
+[1962,"Andy Warhol expone sus latas de sopa Campbell"],
+[1963,"Asesinato de John F. Kennedy"],
+[1964,"Los Beatles actúan en el programa de Ed Sullivan"],
+[1964,"España gana su primera Eurocopa"],
+[1964,"Juegos Olímpicos de Tokio"],
+[1966,"Inglaterra gana el Mundial de fútbol"],
+[1967,"Se publica Cien años de soledad"],
+[1968,"Mayo del 68 en París"],
+[1968,"La misión Apolo 8 orbita la Luna"],
+[1969,"Festival de Woodstock"],
+[1970,"Se separan Los Beatles"],
+[1970,"Brasil gana su tercer Mundial"],
+[1971,"Intel presenta el primer microprocesador comercial"],
+[1971,"Se abre la primera cafetería Starbucks"],
+[1972,"Se estrena El padrino"],
+[1972,"Apolo 17, la última misión tripulada a la Luna"],
+[1973,"Golpe de Estado en Chile"],
+[1973,"Se realiza la primera llamada desde un teléfono móvil"],
+[1975,"Se estrena Tiburón"],
+[1975,"Juan Carlos I es proclamado rey de España"],
+[1976,"Las sondas Viking llegan a Marte"],
+[1977,"Muere Elvis Presley"],
+[1977,"Se lanzan las sondas Voyager"],
+[1977,"Primeras elecciones democráticas en España tras la dictadura"],
+[1978,"Argentina gana su primer Mundial"],
+[1978,"Llega Space Invaders a los recreativos"],
+[1979,"Sony lanza el Walkman"],
+[1980,"Asesinan a John Lennon"],
+[1980,"Juegos Olímpicos de Moscú"],
+[1981,"Intento de golpe de Estado del 23-F"],
+[1981,"IBM presenta su primer PC"],
+[1981,"Primer vuelo del transbordador espacial Columbia"],
+[1981,"Nintendo lanza Donkey Kong"],
+[1982,"Se estrena E.T., el extraterrestre"],
+[1982,"Michael Jackson publica Thriller"],
+[1982,"Italia gana el Mundial celebrado en España"],
+[1982,"Sale el primer CD comercial"],
+[1982,"El PSOE de Felipe González gana las elecciones"],
+[1982,"García Márquez recibe el Nobel de Literatura"],
+[1983,"Nintendo lanza la Famicom en Japón"],
+[1984,"Apple presenta el Macintosh"],
+[1984,"Juegos Olímpicos de Los Ángeles"],
+[1985,"Concierto Live Aid"],
+[1986,"España ingresa en la Comunidad Económica Europea"],
+[1986,"Maradona marca el gol de la «mano de Dios»"],
+[1986,"Explota el transbordador Challenger"],
+[1986,"Referéndum sobre la permanencia de España en la OTAN"],
+[1986,"Sale The Legend of Zelda"],
+[1988,"Juegos Olímpicos de Seúl"],
+[1989,"Nintendo lanza la Game Boy"],
+[1989,"Cela recibe el Nobel de Literatura"],
+[1989,"Tim Berners-Lee propone la World Wide Web"],
+[1990,"Se reunifica Alemania"],
+[1990,"Se lanza el telescopio espacial Hubble"],
+[1990,"Nintendo lanza la Super Nintendo en Japón"],
+[1991,"Se disuelve la Unión Soviética"],
+[1991,"Muere Freddie Mercury"],
+[1991,"Aparece Sonic the Hedgehog"],
+[1991,"Linus Torvalds publica el primer Linux"],
+[1993,"Se estrena Parque Jurásico"],
+[1993,"Sale el videojuego Doom"],
+[1993,"Entra en vigor el Tratado de Maastricht"],
+[1994,"Brasil gana su cuarto Mundial"],
+[1994,"Muere Kurt Cobain"],
+[1996,"Sale Tomb Raider"],
+[1996,"Nintendo 64 llega a Japón"],
+[1997,"Hong Kong vuelve a soberanía china"],
+[1997,"Deep Blue vence a Kaspárov al ajedrez"],
+[1997,"Se inaugura el Museo Guggenheim de Bilbao"],
+[1997,"Se publica el primer libro de Harry Potter"],
+[1997,"ETA asesina a Miguel Ángel Blanco"],
+[1997,"Tiger Woods gana su primer Masters"],
+[1998,"Francia gana su primer Mundial"],
+[1998,"Sale Half-Life"],
+[1998,"Se estrena The Legend of Zelda: Ocarina of Time"],
+[1998,"Apple lanza el iMac"],
+[1998,"Michael Jordan gana su sexto anillo con los Bulls"],
+[1998,"Se lanza el primer módulo de la Estación Espacial Internacional"],
+[1999,"Se estrena Matrix"],
+[1999,"Se estrena la serie Los Soprano"],
+[1999,"El euro nace como moneda contable"],
+[1999,"Pokémon Oro y Plata salen en Japón"],
+[2000,"Juegos Olímpicos de Sídney"],
+[2000,"Sale la PlayStation 2"],
+[2000,"Se estrena Gran Hermano en España"],
+[2001,"Se estrena El señor de los anillos: La comunidad del anillo"],
+[2001,"Se estrena Shrek"],
+[2001,"Apple presenta el iPod"],
+[2001,"Nace Wikipedia"],
+[2001,"Microsoft lanza la Xbox"],
+[2001,"Sale el videojuego Halo"],
+[2002,"El Real Madrid gana su novena Champions"],
+[2002,"Brasil gana su quinto Mundial"],
+[2002,"Se hunde el petrolero Prestige frente a Galicia"],
+[2003,"Se completa el Proyecto Genoma Humano"],
+[2003,"Nace Skype"],
+[2004,"Atentados del 11-M en Madrid"],
+[2004,"Se estrena la serie Perdidos"],
+[2004,"Grecia gana la Eurocopa"],
+[2004,"Juegos Olímpicos de Atenas"],
+[2004,"Sale World of Warcraft"],
+[2004,"Se casan Felipe de Borbón y Letizia Ortiz"],
+[2004,"Los robots Spirit y Opportunity aterrizan en Marte"],
+[2005,"El huracán Katrina arrasa Nueva Orleans"],
+[2005,"Nadal gana su primer Roland Garros"],
+[2005,"Fernando Alonso gana su primer Mundial de Fórmula 1"],
+[2005,"Se aprueba el matrimonio igualitario en España"],
+[2005,"Muere el papa Juan Pablo II"],
+[2005,"Joseph Ratzinger es elegido papa Benedicto XVI"],
+[2005,"Microsoft lanza la Xbox 360"],
+[2005,"Remontada del Liverpool en la final de Champions en Estambul"],
+[2006,"Italia gana el Mundial de Alemania"],
+[2006,"Nintendo lanza la Wii"],
+[2006,"España gana el Mundial de baloncesto en Japón"],
+[2007,"Amazon lanza el Kindle"],
+[2008,"Juegos Olímpicos de Pekín"],
+[2008,"Se estrena la serie Breaking Bad"],
+[2008,"Quiebra Lehman Brothers"],
+[2008,"Nadal gana su primer Wimbledon"],
+[2008,"Se estrena El caballero oscuro"],
+[2008,"Usain Bolt corre los 100 metros en 9,69"],
+[2008,"Sale el primer móvil con Android"],
+[2008,"Se pone en marcha el Gran Colisionador de Hadrones"],
+[2009,"Se publica el primer bloque de Bitcoin"],
+[2009,"Cristiano Ronaldo ficha por el Real Madrid"],
+[2009,"Usain Bolt corre los 100 metros en 9,58"],
+[2009,"Sale Angry Birds"],
+[2010,"Apple presenta el iPad"],
+[2011,"Muere Steve Jobs"],
+[2011,"Un terremoto y un tsunami golpean Japón"],
+[2011,"Nace el movimiento 15-M en España"],
+[2011,"ETA anuncia el cese definitivo de su actividad armada"],
+[2011,"Las fuerzas de EE. UU. matan a Osama bin Laden"],
+[2011,"Boda del príncipe Guillermo y Kate Middleton"],
+[2011,"Skyrim llega a las tiendas"],
+[2011,"Adele publica el álbum 21"],
+[2011,"Último vuelo de un transbordador espacial"],
+[2012,"Se anuncia el descubrimiento del bosón de Higgs"],
+[2012,"Se estrena Los Vengadores"],
+[2012,"España gana su tercera Eurocopa"],
+[2012,"Psy lanza Gangnam Style"],
+[2012,"El róver Curiosity aterriza en Marte"],
+[2012,"Sale la Raspberry Pi"],
+[2012,"Candy Crush sale en Facebook"],
+[2013,"Francisco es elegido papa"],
+[2013,"Muere Nelson Mandela"],
+[2013,"Edward Snowden revela programas de espionaje masivo"],
+[2013,"Se estrena Frozen"],
+[2013,"Sale la PlayStation 4"],
+[2013,"Flappy Bird se vuelve viral"],
+[2014,"Abdica Juan Carlos I y Felipe VI es proclamado rey"],
+[2014,"Alemania gana el Mundial de Brasil"],
+[2014,"El Real Madrid conquista su décima Champions"],
+[2014,"Microsoft compra Mojang, creadora de Minecraft"],
+[2014,"Apple presenta el Apple Watch"],
+[2015,"Acuerdo de París sobre el clima"],
+[2015,"El Barcelona gana el triplete"],
+[2015,"La sonda New Horizons sobrevuela Plutón"],
+[2015,"Se publica The Witcher 3"],
+[2016,"Donald Trump gana las elecciones de Estados Unidos"],
+[2016,"AlphaGo vence a Lee Sedol al go"],
+[2016,"Se anuncia la detección de ondas gravitacionales"],
+[2016,"Muere David Bowie"],
+[2016,"Muere Fidel Castro"],
+[2016,"Bob Dylan recibe el Nobel de Literatura"],
+[2016,"Portugal gana la Eurocopa"],
+[2016,"Leicester City gana la Premier League"],
+[2016,"Juegos Olímpicos de Río de Janeiro"],
+[2016,"Se estrena la serie Stranger Things"],
+[2017,"Se estrena La casa de papel en Antena 3"],
+[2017,"Se celebra el referéndum del 1 de octubre en Cataluña"],
+[2017,"Se lanza Despacito"],
+[2017,"PUBG llega a Steam"],
+[2018,"Pedro Sánchez llega a la presidencia tras una moción de censura"],
+[2018,"Cristiano Ronaldo ficha por la Juventus"],
+[2018,"Francia gana el Mundial de Rusia"],
+[2018,"Se rescata a los niños atrapados en una cueva de Tailandia"],
+[2018,"Se casan el príncipe Harry y Meghan Markle"],
+[2018,"Sale Red Dead Redemption 2"],
+[2019,"Se publica la primera imagen de un agujero negro"],
+[2019,"Se estrena Vengadores: Endgame"],
+[2019,"Madrid acoge la cumbre del clima COP25"],
+[2019,"España gana el Mundial de baloncesto en China"],
+[2020,"Se declara el estado de alarma en España por la COVID-19"],
+[2020,"Parásitos gana el Oscar a mejor película"],
+[2020,"Llega la PlayStation 5"],
+[2020,"Sale Animal Crossing: New Horizons"],
+[2020,"Se aprueban las primeras vacunas contra la COVID-19"],
+[2020,"Joe Biden gana las elecciones de Estados Unidos"],
+[2020,"Primer vuelo tripulado de SpaceX a la Estación Espacial"],
+[2020,"Charpentier y Doudna reciben el Nobel por la edición genética CRISPR"],
+[2021,"El temporal Filomena cubre Madrid de nieve"],
+[2021,"Erupción del volcán de La Palma"],
+[2021,"Se estrena El juego del calamar"],
+[2021,"Italia gana la Eurocopa"],
+[2021,"Juegos Olímpicos de Tokio, aplazados por la pandemia"],
+[2021,"Messi deja el Barcelona y ficha por el PSG"],
+[2021,"El róver Perseverance aterriza en Marte"],
+[2021,"Se lanza el telescopio espacial James Webb"],
+[2022,"Rusia invade Ucrania"],
+[2022,"Carlos Alcaraz gana el US Open"],
+[2022,"Rosalía publica Motomami"],
+[2022,"Sale Elden Ring"],
+[2022,"El telescopio James Webb publica sus primeras imágenes"],
+[2023,"Carlos Alcaraz gana Wimbledon"],
+[2023,"Se estrenan Barbie y Oppenheimer el mismo día"],
+[2023,"Messi ficha por el Inter Miami"],
+[2023,"OpenAI presenta GPT-4"],
+[2023,"Sale Zelda: Tears of the Kingdom"],
+[2023,"Sale Baldur's Gate 3"],
+[2024,"Juegos Olímpicos de París"],
+[2024,"España gana su cuarta Eurocopa"],
+[2024,"Donald Trump vuelve a ganar las elecciones de Estados Unidos"],
+[2025,"Un apagón deja sin luz a gran parte de la península ibérica"],
+[2025,"Muere el papa Francisco"],
+[2025,"León XIV es elegido papa"]
+];
+var EST=[
+{q:"¿Cuántos metros mide la Torre Eiffel, con antenas?",a:330,u:"m"},
+{q:"¿Cuántos metros sobre el nivel del mar tiene el Everest?",a:8849,u:"m"},
+{q:"¿Cuántos millones de habitantes tiene España, más o menos?",a:48,u:"millones"},
+{q:"¿Cuántos huesos tiene un adulto?",a:206,u:"huesos"},
+{q:"¿A qué distancia media está la Luna de la Tierra?",a:384400,u:"km"},
+{q:"¿Cuántas teclas tiene un piano estándar?",a:88,u:"teclas"},
+{q:"¿Cuántos países son miembros de la ONU?",a:193,u:"países"},
+{q:"¿A qué velocidad viaja la luz en el vacío?",a:299792,u:"km/s"},
+{q:"¿Cuántos metros mide el Burj Khalifa?",a:828,u:"m"},
+{q:"¿Cuántos kilómetros suma la Gran Muralla china?",a:21000,u:"km"},
+{q:"¿Cuántos miles de millones de personas hay en el mundo?",a:8.1,u:"mil millones"},
+{q:"¿Cuántos miles de millones de años tiene el universo?",a:13.8,u:"mil millones de años"},
+{q:"¿Qué profundidad tiene la Fosa de las Marianas?",a:10935,u:"m"},
+{q:"¿Cuántos kilómetros mide el río Nilo?",a:6650,u:"km"},
+{q:"¿Cuántos elementos tiene la tabla periódica?",a:118,u:"elementos"},
+{q:"¿Cuántos pisos tiene el Empire State Building?",a:102,u:"pisos"},
+{q:"¿Cuántos metros mide el Teide?",a:3715,u:"m"},
+{q:"¿A cuántos millones de kilómetros está la Tierra del Sol?",a:149.6,u:"millones de km"},
+{q:"¿Cuántos metros medía originalmente la Gran Pirámide de Guiza?",a:147,u:"m"},
+{q:"¿Cuántos dientes tiene un adulto, sin contar las muelas del juicio?",a:28,u:"dientes"},
+{q:"¿Cuántos metros mide la Estatua de la Libertad con su pedestal?",a:93,u:"m"},
+{q:"¿Cuántos kilómetros mide el río Amazonas?",a:6400,u:"km"},
+{q:"¿Cuántos kilómetros mide el río Ebro?",a:930,u:"km"},
+{q:"¿Cuántos metros mide el Mulhacén?",a:3479,u:"m"},
+{q:"¿Cuántos millones de habitantes tiene la ciudad de Madrid?",a:3.4,u:"millones"},
+{q:"¿Cuántos millones de habitantes tiene la ciudad de Barcelona?",a:1.6,u:"millones"},
+{q:"¿Cuántos millones de habitantes tiene China?",a:1410,u:"millones"},
+{q:"¿Cuántos kilómetros cuadrados tiene España?",a:506000,u:"km²"},
+{q:"¿Cuántos kilómetros mide una maratón?",a:42.195,u:"km"},
+{q:"¿Cuántos días terrestres dura un año en Marte?",a:687,u:"días"},
+{q:"¿Cuántas horas dura un día en Júpiter?",a:9.9,u:"horas"},
+{q:"¿A cuántos grados centígrados está la superficie del Sol?",a:5500,u:"°C"},
+{q:"¿A qué velocidad viaja el sonido en el aire?",a:343,u:"m/s"},
+{q:"¿Cuántos gramos pesa un cerebro humano adulto?",a:1400,u:"g"},
+{q:"¿Cuántos litros de sangre tiene un adulto?",a:5,u:"litros"},
+{q:"¿Cuántos metros mide una jirafa adulta de las más altas?",a:5.5,u:"m"},
+{q:"¿A cuántos km/h corre un guepardo a su máxima velocidad?",a:110,u:"km/h"},
+{q:"¿Cuántos metros de caída tiene el Salto Ángel de Venezuela?",a:979,u:"m"},
+{q:"¿Cuántos metros mide el Aconcagua?",a:6961,u:"m"},
+{q:"¿Cuántos metros mide el Kilimanjaro?",a:5895,u:"m"},
+{q:"¿Cuántos metros mide el Mont Blanc?",a:4806,u:"m"},
+{q:"¿Cuántos kilómetros cuadrados ocupa el Vaticano?",a:0.44,u:"km²"},
+{q:"¿Qué profundidad máxima tiene el lago Baikal?",a:1642,u:"m"},
+{q:"¿Cuántos kilómetros mide el túnel ferroviario de San Gotardo?",a:57,u:"km"},
+{q:"¿Cuántos billones de kilómetros recorre la luz en un año?",a:9.46,u:"billones de km"},
+{q:"¿Cuántos kilómetros hay en línea recta entre Madrid y Nueva York?",a:5760,u:"km"},
+{q:"¿Cuántas selecciones juegan el Mundial de fútbol de 2026?",a:48,u:"selecciones"},
+{q:"¿Cuántos años tiene aproximadamente la Gran Pirámide de Guiza?",a:4500,u:"años"},
+{q:"¿Cuántos metros mide la torre del Big Ben (Elizabeth Tower)?",a:96,u:"m"},
+{q:"¿Cuántos kilómetros mide el Canal de Suez?",a:193,u:"km"},
+{q:"¿Cuántos miles de millones de años tiene la Tierra?",a:4.5,u:"mil millones de años"},
+{q:"¿Cuántos cromosomas tiene una persona?",a:46,u:"cromosomas"},
+{q:"¿Cuántas veces late el corazón humano al día, más o menos?",a:100000,u:"latidos"},
+{q:"¿Cuántos kilómetros de vasos sanguíneos tiene un adulto?",a:100000,u:"km"},
+{q:"¿Cuántos Mundiales de fútbol ha ganado Brasil?",a:5,u:"Mundiales"}
+];
+
+/* ---------- Estado guardado ---------- */
+var KEY='circaAdivina.v1';
+var S={xp:0,played:0,rounds:0,exact:0,bestFirstStreak:0,bestScore:0,perfectOrder:0,tightEst:0,timerBest:0,modes:{},best:{},dailyDate:'',dailyStreak:0,bestDailyStreak:0,dailyScores:{},ach:{},seenEv:[],seenEst:[],mute:false,coins:0,hits:0,claimed:{},owned:{cobalto:true},theme:'cobalto'};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);for(var k in p){S[k]=p[k];}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ---------- Utilidades ---------- */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+var rnd=Math.random;
+function pick(arr,n){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a.slice(0,n);}
+function todayStr(d){d=d||new Date();var m=d.getMonth()+1,dd=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;}
+function yesterdayStr(){var d=new Date();d.setDate(d.getDate()-1);return todayStr(d);}
+function level(){return 1+Math.floor(S.xp/250);}
+var TITLES=['Curioso','Aprendiz','Cronista','Historiador','Erudito','Maestro del tiempo','Leyenda'];
+function title(){return TITLES[Math.min(level()-1,TITLES.length-1)];}
+function show(id){['home','game','end','logros','premios'].forEach(function(s){$('#'+s).hidden=(s!==id);});window.scrollTo(0,0);}
+function toast(html){var t=el('div',null,html);$('#toast').appendChild(t);setTimeout(function(){t.remove();},3800);}
+function parseNum(s){
+  s=String(s).trim().replace(/\s/g,'');
+  if(!s)return NaN;
+  if(s.indexOf(',')>-1){s=s.replace(/\./g,'').replace(',','.');}
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s)){s=s.replace(/\./g,'');}
+  var n=parseFloat(s);return isFinite(n)?n:NaN;
+}
+
+/* ---------- Control de repetidos ---------- */
+var seenEv=new Set(S.seenEv||[]),seenEst=new Set(S.seenEst||[]);
+var used=new Set(),usedEst=new Set(),seeded=false;
+function persistSeen(){S.seenEv=Array.from(seenEv);S.seenEst=Array.from(seenEst);}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a;}
+function takeFrom(len,seen,usedSet,n){
+  var idx=range(len).filter(function(i){return (seeded||!seen.has(i))&&!usedSet.has(i);});
+  if(idx.length<n&&!seeded){seen.clear();idx=range(len).filter(function(i){return !usedSet.has(i);});}
+  if(idx.length<n){usedSet.clear();idx=range(len);}
+  var ch=pick(idx,n);ch.forEach(function(i){usedSet.add(i);});return ch;
+}
+function takeEv(n){return takeFrom(EV.length,seenEv,used,n).map(function(i){return EV[i];});}
+function takeEst(n){return takeFrom(EST.length,seenEst,usedEst,n).map(function(i){return EST[i];});}
+function markEv(ev){if(G&&G.daily)return;var i=EV.indexOf(ev);if(i>-1)seenEv.add(i);}
+function markEst(it){if(G&&G.daily)return;var i=EST.indexOf(it);if(i>-1)seenEst.add(i);}
+
+/* ---------- Construcción de rondas ---------- */
+function mkCirca(){
+  var e=takeEv(1)[0],y=e[0];
+  var W=y<1000?1200:y<1700?500:y<1900?250:100;
+  var lo=y-Math.floor(W*(0.1+0.8*rnd())),hi=lo+W;
+  if(hi>2026){hi=2026;lo=hi-W;}
+  if(lo<1){lo=1;hi=1+W;}
+  return {t:'circa',e:e,lo:lo,hi:hi,W:W};
+}
+function mkFirst(){
+  var a=takeEv(1)[0],b,k=0;
+  do{b=takeEv(1)[0];k++;}while(Math.abs(a[0]-b[0])<2&&k<40);
+  return {t:'first',a:a,b:b};
+}
+function mkOrder(){
+  var sel=[],ys={},k=0;
+  while(sel.length<4&&k<120){var e=takeEv(1)[0];k++;if(!ys[e[0]]){ys[e[0]]=1;sel.push(e);}}
+  return {t:'order',items:sel};
+}
+function mkEst(){return {t:'est',it:takeEst(1)[0]};}
+function many(f,n){var r=[];for(var i=0;i<n;i++)r.push(f());return r;}
+function shuffle(a){return pick(a,a.length);}
+
+var MODES={
+  daily:{name:'Desafío diario',ic:'HOY',n:6},
+  circa:{name:'Circa',ic:'AÑO',desc:'Mueve el marcador y acierta el año.',n:8,make:function(){return many(mkCirca,8);}},
+  first:{name:'¿Qué fue primero?',ic:'VS',desc:'Dos sucesos, un solo antes.',n:10,make:function(){return many(mkFirst,10);}},
+  order:{name:'Ordena la línea',ic:'1-4',desc:'Pon cuatro sucesos en orden.',n:6,make:function(){return many(mkOrder,6);}},
+  est:{name:'A ojo',ic:'≈',desc:'Estima la cifra sin pasarte de largo.',n:8,make:function(){return takeEst(8).map(function(it){return {t:'est',it:it};});}},
+  timer:{name:'Contrarreloj',ic:'45s',desc:'Aciertos rápidos, tres fallos y fuera.',n:60,timer:true,make:function(){return many(mkFirst,40);}},
+  mix:{name:'Mezcla total',ic:'MIX',desc:'Doce rondas de todo tipo.',n:12,make:function(){
+    return shuffle(many(mkCirca,5).concat(many(mkFirst,3),many(mkOrder,2),takeEst(2).map(function(it){return {t:'est',it:it};})));}}
+};
+var ORDER=['circa','first','order','est','timer','mix'];
+
+function dailyRounds(){
+  used=new Set();usedEst=new Set();seeded=true;
+  rnd=mulberry(hash('circa-'+todayStr()));
+  var r=[mkCirca(),mkCirca(),mkFirst(),mkOrder(),mkEst(),mkCirca()];
+  rnd=Math.random;seeded=false;used=new Set();usedEst=new Set();
+  return r;
+}
+
+/* ---------- Logros ---------- */
+var ACH=[
+ {id:'p1',n:'Primera partida',d:'Termina una partida.',p:function(){return [S.played,1];}},
+ {id:'ex1',n:'Ojo de águila',d:'Acierta un año exacto.',p:function(){return [S.exact,1];}},
+ {id:'ex10',n:'Reloj suizo',d:'Acierta 10 años exactos.',p:function(){return [S.exact,10];}},
+ {id:'fs5',n:'En racha',d:'5 aciertos seguidos en ¿Qué fue primero?',p:function(){return [S.bestFirstStreak,5];}},
+ {id:'fs12',n:'Imparable',d:'12 aciertos seguidos en ¿Qué fue primero?',p:function(){return [S.bestFirstStreak,12];}},
+ {id:'ord',n:'Cronólogo',d:'Ordena bien una línea de cuatro.',p:function(){return [S.perfectOrder,1];}},
+ {id:'sc',n:'Gran marcador',d:'Suma 6.000 puntos en una partida.',p:function(){return [S.bestScore,6000];}},
+ {id:'est',n:'Calculadora humana',d:'Estima con un error de 2 % o menos.',p:function(){return [S.tightEst,1];}},
+ {id:'d3',n:'Constante',d:'3 días seguidos con el desafío diario.',p:function(){return [S.bestDailyStreak,3];}},
+ {id:'d7',n:'Hábito',d:'7 días seguidos con el desafío diario.',p:function(){return [S.bestDailyStreak,7];}},
+ {id:'tm',n:'Relámpago',d:'20 aciertos en una Contrarreloj.',p:function(){return [S.timerBest,20];}},
+ {id:'all',n:'Todo terreno',d:'Juega los siete modos.',p:function(){return [Object.keys(S.modes).length,7];}},
+ {id:'r100',n:'Veterano',d:'Juega 100 rondas.',p:function(){return [S.rounds,100];}},
+ {id:'l5',n:'Nivel 5',d:'Llega al nivel 5.',p:function(){return [level(),5];}}
+];
+function checkAch(){
+  var got=[];
+  ACH.forEach(function(a){var p=a.p();if(!S.ach[a.id]&&p[0]>=p[1]){S.ach[a.id]=true;got.push(a.n);}});
+  return got;
+}
+
+/* ---------- Efectos de acierto y fallo ---------- */
+var AC=null;
+function beep(seq){
+  if(S.mute)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+    seq.forEach(function(n,i){
+      var o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+i*0.11;
+      o.type=n[2]||'triangle';o.frequency.value=n[0];
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.16,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]);
+      o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+n[1]+0.03);
+    });
+  }catch(e){}
+}
+var CONF=['#ffd23f','#1fbf6a','#ff4d5e','#fbfbff','#7aa2ff','#ff8a3d'];
+function fx(kind,pts,o){
+  o=o||{};
+  beep(kind==='good'?[[660,0.14],[880,0.14],[1320,0.24]]:kind==='mid'?[[600,0.14],[780,0.2]]:[[220,0.2,'sawtooth'],[160,0.34,'sawtooth']]);
+  try{if(navigator.vibrate)navigator.vibrate(kind==='bad'?[60,40,60]:25);}catch(e){}
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var f=$('#fx');
+  var fl=el('div','flash '+(kind==='bad'?'bad':'good'));f.appendChild(fl);setTimeout(function(){fl.remove();},650);
+  var n=kind==='good'?(o.big?80:o.light?14:36):kind==='mid'?(o.light?4:14):0;
+  for(var i=0;i<n;i++){
+    var c=el('i','cf');
+    var dx=(Math.random()-0.5)*(o.big?520:360);
+    c.style.cssText='background:'+CONF[i%CONF.length]+';--dx:'+dx+'px;--up:'+(-140-Math.random()*(o.big?260:160))+'px;--down:'+(180+Math.random()*260)+'px;--rot:'+((Math.random()-0.5)*900)+'deg;animation-delay:'+(Math.random()*90)+'ms';
+    f.appendChild(c);(function(x){setTimeout(function(){x.remove();},1400);})(c);
+  }
+  if(kind==='bad'){document.body.classList.add('hit');setTimeout(function(){document.body.classList.remove('hit');},500);}
+  var t=el('div','float '+(kind==='bad'?'bad':''),kind==='bad'?'Fallo':(pts>0?'+'+nf(pts):'')+'');
+  if(t.textContent){f.appendChild(t);setTimeout(function(){t.remove();},1100);}
+  if(o.label){var l=el('div','float lab',o.label);f.appendChild(l);setTimeout(function(){l.remove();},1300);}
+}
+
+/* ---------- Lustros, premios y tienda ---------- */
+var coinShown=S.coins,pendingFly=0;
+var MILES=[{id:'m1',at:10,c:20},{id:'m2',at:25,c:40},{id:'m3',at:50,c:80},{id:'m4',at:100,c:150},{id:'m5',at:200,c:300},{id:'m6',at:350,c:500},{id:'m7',at:500,c:800},{id:'m8',at:1000,c:2000}];
+var THEMES=[
+ {id:'cobalto',n:'Cobalto',bg:'#2430e8',bg2:'#1a23b5',price:0},
+ {id:'carmesi',n:'Carmesí',bg:'#d1213f',bg2:'#9c1830',price:150},
+ {id:'esmeralda',n:'Esmeralda',bg:'#0b8f63',bg2:'#076a49',price:250},
+ {id:'violeta',n:'Violeta',bg:'#7a3cff',bg2:'#5522c9',price:350},
+ {id:'ocaso',n:'Ocaso',bg:'#e5560f',bg2:'#b0400a',price:500}
+];
+function applyTheme(id){
+  var t=THEMES.filter(function(x){return x.id===id;})[0]||THEMES[0];
+  document.documentElement.style.setProperty('--bg',t.bg);
+  document.documentElement.style.setProperty('--bg2',t.bg2);
+}
+function claimable(){return MILES.filter(function(m){return S.hits>=m.at&&!S.claimed[m.id];}).length;}
+function lus(n){return nf(n)+(n===1?' lustro':' lustros');}
+function setCoinNum(v){var t=nf(Math.round(v));document.querySelectorAll('.cn').forEach(function(e){e.textContent=t;});}
+function coinFx(n,origin){
+  if(n<=0)return;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pills=Array.prototype.slice.call(document.querySelectorAll('.coinpill')).filter(function(q){return q.offsetParent!==null;});
+  var target=pills[0];
+  if(reduce||!target||!document.body.animate){coinShown=S.coins;setCoinNum(coinShown);return;}
+  var tr=target.getBoundingClientRect(),f=$('#fx'),cx,cy;
+  if(origin){var o=origin.getBoundingClientRect();cx=o.left+o.width/2;cy=o.top+o.height/2;}
+  else{cx=window.innerWidth/2;cy=window.innerHeight*0.45;}
+  var count=Math.min(n,10),share=n/count;
+  for(var i=0;i<count;i++){(function(i){
+    var c=el('i','coin fly');c.style.left=cx+'px';c.style.top=cy+'px';f.appendChild(c);pendingFly++;
+    var ox=(Math.random()-0.5)*170,oy=-20-Math.random()*80;
+    var tx=tr.left+tr.width/2-cx,ty=tr.top+tr.height/2-cy;
+    var a=c.animate([
+      {transform:'translate(0px,0px) scale(.2)',opacity:0},
+      {transform:'translate('+ox+'px,'+oy+'px) scale(1.25)',opacity:1,offset:0.3},
+      {transform:'translate('+tx+'px,'+ty+'px) scale(.55)',opacity:1}
+    ],{duration:900,delay:350+i*70,easing:'cubic-bezier(.45,0,.7,.4)',fill:'both'});
+    a.onfinish=function(){
+      c.remove();pendingFly--;
+      coinShown=pendingFly<=0?S.coins:coinShown+share;
+      setCoinNum(coinShown);
+      target.classList.remove('pulse');void target.offsetWidth;target.classList.add('pulse');
+    };
+  })(i);}
+}
+
+function renderPremios(keep){
+  var y=keep?window.scrollY:0;
+  var P=$('#premios');P.innerHTML='';
+  if(pendingFly<=0)coinShown=S.coins;
+  var back=el('button','ghost','Volver');back.type='button';back.style.alignSelf='flex-start';
+  back.addEventListener('click',renderHome);P.appendChild(back);
+  P.appendChild(el('div','top','<h2 class="brand" style="font-size:40px">Premios</h2><div class="coinpill big"><i class="coin"></i><b class="cn">0</b></div>'));
+  P.appendChild(el('div','card plain','<b>Lustros</b> es la moneda del juego. Cada ronda da hasta 10 según lo cerca que estés. Año exacto: +5. Racha de tres aciertos: +2. Desafío diario: +20 la primera vez cada día. Una pista en Circa cuesta 25.'));
+  P.appendChild(el('div','sect','Por tus aciertos · llevas '+nf(S.hits)));
+  var ms=el('div','ms');
+  MILES.forEach(function(m){
+    var done=!!S.claimed[m.id],ok=S.hits>=m.at;
+    var card=el('div','card msrow'+(done?' done':''),'<div><b>'+nf(m.at)+' aciertos</b><p>Premio: '+lus(m.c)+'</p><div class="pg2"><i style="width:'+Math.min(100,S.hits/m.at*100)+'%"></i></div></div>');
+    var b=el('button','btn',done?'Reclamado':ok?'Reclamar':nf(Math.max(0,m.at-S.hits))+' más');b.type='button';b.disabled=done||!ok;
+    b.addEventListener('click',function(){
+      if(S.claimed[m.id]||S.hits<m.at)return;
+      S.claimed[m.id]=true;S.coins+=m.c;save();
+      b.disabled=true;b.textContent='Reclamado';card.classList.add('done');
+      fx('good',0,{});coinFx(m.c,b);
+    });
+    card.appendChild(b);ms.appendChild(card);
+  });
+  P.appendChild(ms);
+  P.appendChild(el('div','sect','Tienda de colores'));
+  var tl=el('div','ms');
+  THEMES.forEach(function(t){
+    var own=!!S.owned[t.id],on=S.theme===t.id;
+    var card=el('div','card msrow','<div class="sw" style="background:'+t.bg+'"></div><div><b>'+t.n+'</b><p>'+(own?'Tuyo':lus(t.price))+'</p></div>');
+    var b=el('button','btn'+(on?' alt':''),on?'En uso':own?'Usar':'Comprar');b.type='button';b.disabled=on;
+    b.addEventListener('click',function(){
+      if(!own){
+        if(S.coins<t.price){toast('Te faltan '+lus(t.price-S.coins));var pl=document.querySelector('#premios .coinpill');if(pl){pl.classList.remove('pulse');void pl.offsetWidth;pl.classList.add('pulse');}return;}
+        S.coins-=t.price;S.owned[t.id]=true;fx('good',0,{});
+      }
+      S.theme=t.id;applyTheme(t.id);save();coinShown=S.coins;renderPremios(true);
+    });
+    card.appendChild(b);tl.appendChild(card);
+  });
+  P.appendChild(tl);
+  show('premios');setCoinNum(coinShown);
+  if(y)window.scrollTo(0,y);
+}
+
+/* ---------- Pantalla de inicio ---------- */
+var flagTimer=null;
+function renderHome(){
+  var h=$('#home');h.innerHTML='';
+  if(pendingFly<=0)coinShown=S.coins;
+  var lv=level(),prog=(S.xp%250)/250*100;
+  var top=el('div','top');
+  top.innerHTML='<h1 class="brand">Circa<small>adivina</small></h1><div class="lvl"><b>Nv. '+lv+' · '+title()+'</b><span>'+nf(S.xp)+' XP</span><div class="xp"><i style="width:'+prog+'%"></i></div><div class="coinpill" style="margin-top:8px"><i class="coin"></i><b class="cn">0</b></div></div>';
+  h.appendChild(top);
+
+  var ru=el('div','ruler','<div class="flag" id="flag">1989</div>');
+  h.appendChild(ru);
+  clearInterval(flagTimer);
+  var flag=ru.querySelector('#flag');
+  function tick(){var y=EV[Math.floor(Math.random()*EV.length)][0];flag.textContent='≈ '+y;flag.style.left=(12+Math.random()*76)+'%';}
+  tick();flagTimer=setInterval(function(){if(!$('#home').hidden)tick();},1800);
+
+  var today=todayStr(),done=S.dailyDate===today;
+  var streakNow=(S.dailyDate===today||S.dailyDate===yesterdayStr())?S.dailyStreak:0;
+  var dc=el('div','card daily');
+  dc.innerHTML='<div class="tag">Desafío diario · '+today+'</div><h2>Seis rondas, las mismas para todos</h2><p>'+
+    (done?'Hoy ya lo has jugado: '+nf(S.dailyScores[today]||0)+' puntos. Mañana hay otro.':'Mezcla de año, orden y estimación. Cuenta para tu racha.')+
+    '</p><div class="streak">Racha: '+streakNow+(streakNow===1?' día':' días')+'</div>';
+  var db=el('button','btn dark',done?'Repetir sin puntuar':'Jugar el desafío');
+  db.type='button';db.addEventListener('click',function(){start('daily');});
+  dc.appendChild(db);h.appendChild(dc);
+
+  h.appendChild(el('div','sect','Modos de juego'));
+  var grid=el('div','modes');
+  ORDER.forEach(function(id){
+    var m=MODES[id];
+    var b=el('button','mode','<span class="ic">'+m.ic+'</span><b>'+m.name+'</b><span>'+m.desc+'</span><em>'+(S.best[id]?'Récord '+nf(S.best[id])+(m.timer?' aciertos':''):'Sin jugar')+'</em>');
+    b.type='button';b.addEventListener('click',function(){start(id);});
+    grid.appendChild(b);
+  });
+  h.appendChild(grid);
+
+  var n=Object.keys(S.ach).length;
+  var lb=el('button','card mode logrobtn','<div><b>Logros</b><br><span>'+n+' de '+ACH.length+' conseguidos</span></div><span class="ic">VER</span>');
+  lb.type='button';lb.addEventListener('click',renderLogros);
+  var cl=claimable();
+  var pb=el('button','card mode logrobtn','<div><b>Premios</b><br><span>'+lus(S.coins)+(cl?' · '+cl+(cl===1?' premio por reclamar':' premios por reclamar'):'')+'</span></div><span class="ic">'+(cl?'¡'+cl+'!':'VER')+'</span>');
+  pb.type='button';pb.addEventListener('click',function(){renderPremios(false);});
+  h.appendChild(pb);h.appendChild(lb);
+  var info=el('div','sect','Has visto '+seenEv.size+' de '+EV.length+' sucesos y '+seenEst.size+' de '+EST.length+' estimaciones sin repetir');
+  h.appendChild(info);
+  var sb=el('button','ghost',S.mute?'Sonido: desactivado':'Sonido: activado');sb.type='button';sb.style.alignSelf='flex-start';
+  sb.addEventListener('click',function(){S.mute=!S.mute;save();sb.textContent=S.mute?'Sonido: desactivado':'Sonido: activado';});
+  h.appendChild(sb);
+  show('home');setCoinNum(coinShown);
+}
+
+function renderLogros(){
+  var L=$('#logros');L.innerHTML='';
+  var back=el('button','ghost','Volver');back.type='button';back.style.alignSelf='flex-start';
+  back.addEventListener('click',renderHome);
+  L.appendChild(back);
+  L.appendChild(el('h2',null,'<span class="brand" style="font-size:40px">Logros</span>'));
+  var box=el('div','logros');
+  ACH.forEach(function(a){
+    var p=a.p(),cur=Math.min(p[0],p[1]),done=!!S.ach[a.id];
+    var c=el('div','card lg'+(done?' done':''),
+      '<div class="badge">'+(done?'OK':Math.round(cur/p[1]*100)+'%')+'</div><div><b>'+a.n+'</b><p>'+a.d+'</p><div class="pg"><i style="width:'+(cur/p[1]*100)+'%"></i></div></div>');
+    box.appendChild(c);
+  });
+  L.appendChild(box);
+  show('logros');
+}
+
+/* ---------- Partida ---------- */
+var G=null;
+function start(id){
+  clearInterval(flagTimer);
+  var m=MODES[id];
+  used=new Set();usedEst=new Set();
+  var rounds=id==='daily'?dailyRounds():m.make();
+  G={mode:id,daily:id==='daily',fxBig:false,fxLabel:'',rounds:rounds,i:0,score:0,res:[],streak:0,bestStreak:0,correct:0,done:false,ended:false,
+     coins:0,cur:'',timer:!!m.timer,lives:3,left:45000,total:45000,last:Date.now(),iv:null};
+  if(G.timer){
+    G.iv=setInterval(function(){
+      if(G.ended)return;
+      var now=Date.now();G.left-=now-G.last;G.last=now;
+      if(G.left<=0){G.left=0;hud();endGame();return;}
+      hud();
+    },100);
+  }
+  coinShown=S.coins;pendingFly=0;
+  show('game');
+  renderRound();
+}
+$('#quit').addEventListener('click',function(){if(G){G.ended=true;clearInterval(G.iv);}renderHome();});
+
+function hud(){
+  setCoinNum(coinShown);
+  $('#hudScore').textContent=nf(G.score);
+  var m=MODES[G.mode];
+  if(G.timer){
+    $('#hudMid').innerHTML='<b>'+Math.ceil(G.left/1000)+' s</b><span class="lives">'+'<i></i>'.repeat(G.lives)+'<i class="off"></i>'.repeat(3-G.lives)+'</span>';
+    $('#barFill').style.width=(G.left/G.total*100)+'%';
+  }else{
+    $('#hudMid').innerHTML='<b>'+m.name+'</b> '+Math.min(G.i+1,G.rounds.length)+'/'+G.rounds.length;
+    $('#barFill').style.width=((G.i+(G.done?1:0))/G.rounds.length*100)+'%';
+  }
+}
+
+function renderRound(){
+  if(G.ended)return;
+  G.done=false;
+  var r=G.rounds[G.i],st=$('#stage');G.cur=r.t;
+  st.innerHTML='';hud();
+  ({circa:rCirca,first:rFirst,order:rOrder,est:rEst})[r.t](r,st);
+}
+
+function nextBtn(st){
+  var last=G.i>=G.rounds.length-1;
+  var b=el('button','btn',last?'Ver resultado':'Siguiente');b.type='button';
+  b.addEventListener('click',next);st.appendChild(b);b.focus({preventScroll:true});
+  return b;
+}
+function next(){
+  if(G.ended)return;
+  G.i++;
+  if(G.i>=G.rounds.length){endGame();}else{renderRound();}
+}
+/* Cierra una ronda: suma, guarda ratio y muestra el cuadro de resultado */
+function finishRound(pts,max,fb,st,auto){
+  G.done=true;G.score+=pts;G.res.push(Math.min(1,pts/max));S.rounds++;hud();
+  var ra=Math.min(1,pts/max);
+  var coins=G.cur==='first'?(pts>0?(G.timer?2:4):0):Math.round(ra*10);
+  if(G.fxBig)coins+=5;
+  if(G.fxLabel&&G.fxLabel.indexOf('Racha')===0)coins+=2;
+  if(ra>=0.7)S.hits++;
+  fx(ra>=0.7?'good':ra>=0.3?'mid':'bad',pts,{big:G.fxBig,label:G.fxLabel,light:G.timer});
+  if(coins>0){
+    S.coins+=coins;G.coins+=coins;coinFx(coins);
+    if(fb)fb.insertAdjacentHTML('beforeend','<div class="pts coinline">+'+lus(coins)+'</div>');
+  }
+  G.fxBig=false;G.fxLabel='';persistSeen();save();
+  if(fb){st.appendChild(fb);}
+  if(auto){var g=G;setTimeout(function(){if(G===g&&!G.ended)next();},auto);}
+  else{var nb=nextBtn(st);setTimeout(function(){fb&&fb.scrollIntoView({block:'nearest',behavior:'smooth'});},30);}
+}
+function fbBox(cls,big,pts,extra){
+  return el('div','fb pop '+cls,'<div class="big">'+big+'</div><div class="pts">'+(pts>0?'+'+nf(pts)+' puntos':'0 puntos')+'</div>'+(extra||''));
+}
+
+/* --- Circa: adivina el año --- */
+function rCirca(r,st){
+  var y=r.e[0],mid=Math.round((r.lo+r.hi)/2);markEv(r.e);
+  var c=el('div','card pop','<div class="tag">¿En qué año pasó?</div><p class="ev">'+r.e[1]+'</p>');
+  var yr=el('div','year',String(mid));
+  var sl=el('input');sl.type='range';sl.id='yr';sl.min=r.lo;sl.max=r.hi;sl.step=1;sl.value=mid;
+  sl.setAttribute('aria-label','Año elegido');
+  var bd=el('div','bounds','<span>'+r.lo+'</span><span>'+r.hi+'</span>');
+  var nu=el('div','nudge');
+  [-10,-1,1,10].forEach(function(d){
+    var b=el('button',null,(d>0?'+':'−')+Math.abs(d));b.type='button';
+    b.addEventListener('click',function(){if(sl.disabled)return;sl.value=Math.max(r.lo,Math.min(r.hi,+sl.value+d));yr.textContent=sl.value;});
+    nu.appendChild(b);
+  });
+  sl.addEventListener('input',function(){yr.textContent=sl.value;});
+  c.appendChild(yr);c.appendChild(sl);c.appendChild(bd);c.appendChild(nu);
+  var hint=null;
+  if(!G.daily){
+    hint=el('button','btn alt small hintbtn','Pista · 25 lustros');hint.type='button';
+    hint.addEventListener('click',function(){
+      if(sl.disabled||hint.disabled)return;
+      if(S.coins<25){toast('Te faltan '+lus(25-S.coins)+' para la pista');return;}
+      S.coins-=25;coinShown=Math.max(0,coinShown-25);save();
+      var W2=Math.max(20,Math.round((r.hi-r.lo)/2));
+      var lo=y-Math.floor(W2*(0.2+0.6*Math.random())),hi=lo+W2;
+      if(hi>2026){hi=2026;lo=hi-W2;}
+      if(lo<1){lo=1;hi=1+W2;}
+      r.lo=lo;r.hi=hi;sl.min=lo;sl.max=hi;sl.value=Math.round((lo+hi)/2);yr.textContent=sl.value;
+      bd.innerHTML='<span>'+lo+'</span><span>'+hi+'</span>';
+      hint.disabled=true;hint.textContent='Pista usada';hud();
+      toast('El año está entre <b>'+lo+'</b> y <b>'+hi+'</b>');
+    });
+    c.appendChild(hint);
+  }
+  st.appendChild(c);
+  var ok=el('button','btn','Confirmar año');ok.type='button';st.appendChild(ok);
+  ok.addEventListener('click',function(){
+    var g=+sl.value,d=Math.abs(g-y),T=r.W*0.2;
+    var pts=Math.max(0,Math.round(1000*(1-d/T)));
+    sl.disabled=true;nu.querySelectorAll('button').forEach(function(b){b.disabled=true;});if(hint)hint.disabled=true;ok.remove();
+    if(d===0){S.exact++;G.fxBig=true;G.fxLabel='¡Exacto!';}
+    var cls=pts>=700?'good':pts>=300?'mid':'bad';
+    var msg=d===0?'¡Año exacto!':(d+(d===1?' año':' años')+(g>y?' de más':' de menos'));
+    var pg=(g-r.lo)/(r.hi-r.lo)*100,pr=(y-r.lo)/(r.hi-r.lo)*100;
+    var sc='<div class="scale"><div class="line"></div><div class="pin me" style="left:'+pg+'%">tú '+g+'</div><div class="dot me" style="left:'+pg+'%"></div><div class="dot real" style="left:'+pr+'%"></div><div class="pin real" style="left:'+pr+'%">'+y+'</div></div>';
+    finishRound(pts,1000,fbBox(cls,'Fue en '+y,pts,'<p>'+msg+'.</p>'+sc),st);
+  });
+}
+
+/* --- ¿Qué fue primero? --- */
+function rFirst(r,st){
+  var fast=G.timer;markEv(r.a);markEv(r.b);
+  var c=el('div','card pop','<div class="tag">¿Qué pasó antes?</div>');
+  var wrap=el('div','opts');wrap.style.marginTop='12px';
+  var swap=rnd()<0.5;
+  var A=swap?r.b:r.a,B=swap?r.a:r.b;
+  var first=A[0]<B[0]?A:B;
+  var btns=[];
+  function mk(ev){
+    var b=el('button','opt',ev[1]+'<span class="yr">'+ev[0]+'</span>');b.type='button';
+    b.addEventListener('click',function(){
+      if(G.done)return;
+      btns.forEach(function(x){x.cls.classList.add('lock');});
+      var right=(ev===first);
+      btns.forEach(function(x){x.cls.classList.add(x.ev===first?'ok':'no');});
+      if(right){G.streak++;G.correct++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;}
+      else{G.streak=0;if(G.timer)G.lives--;}
+      if(G.bestStreak>S.bestFirstStreak)S.bestFirstStreak=G.bestStreak;
+      if(right&&G.streak>=3)G.fxLabel='Racha ×'+G.streak;
+      var pts=right?(fast?100:500):0,max=fast?100:500;
+      if(fast){
+        finishRound(pts,max,null,st,right?550:1100);
+        if(G.lives<=0){var g=G;setTimeout(function(){if(G===g)endGame();},900);}
+      }else{
+        finishRound(pts,max,fbBox(right?'good':'bad',right?'¡Correcto!':'Era la otra',pts,'<p>'+first[1]+' fue en '+first[0]+'.</p>'),st);
+      }
+    });
+    btns.push({cls:b,ev:ev});return b;
+  }
+  wrap.appendChild(mk(A));wrap.appendChild(el('div','vs','— o —'));wrap.appendChild(mk(B));
+  c.appendChild(wrap);st.appendChild(c);
+}
+
+/* --- Ordena la línea --- */
+function rOrder(r,st){
+  var c=el('div','card pop','<div class="tag">Del más antiguo al más reciente</div>');
+  var ul=el('div','ord');
+  var items=r.items.slice(),sel=[];r.items.forEach(function(e){markEv(e);});
+  var chk=el('button','btn','Comprobar');chk.type='button';chk.disabled=true;
+  var bs=items.map(function(ev){
+    var b=el('button',null,'<span class="n"></span><span>'+ev[1]+'</span>');b.type='button';
+    b.addEventListener('click',function(){
+      if(G.done)return;
+      var i=sel.indexOf(ev);
+      if(i>-1){sel.length=i;}else{sel.push(ev);}
+      bs.forEach(function(x){var k=sel.indexOf(x.ev);x.b.classList.toggle('sel',k>-1);x.b.querySelector('.n').textContent=k>-1?k+1:'';});
+      chk.disabled=sel.length!==items.length;
+    });
+    ul.appendChild(b);return {b:b,ev:ev};
+  });
+  c.appendChild(ul);st.appendChild(c);st.appendChild(chk);
+  chk.addEventListener('click',function(){
+    var right=items.slice().sort(function(a,b){return a[0]-b[0];});
+    var hits=0;
+    var ol=el('div','ord');
+    right.forEach(function(ev,i){
+      var okp=sel[i]===ev||(sel[i]&&sel[i][0]===ev[0]);
+      if(okp)hits++;
+      var li=el('li',okp?'ok':'no','<span class="n">'+(i+1)+'</span><span>'+ev[1]+'</span><span class="y">'+ev[0]+'</span>');
+      li.style.animationDelay=(i*130)+'ms';ol.appendChild(li);
+    });
+    if(hits===4)S.perfectOrder++;
+    var pts=hits*250;
+    c.innerHTML='<div class="tag">Orden correcto</div>';c.appendChild(ol);
+    chk.remove();
+    finishRound(pts,1000,fbBox(hits===4?'good':hits>=2?'mid':'bad',hits+' de 4 en su sitio',pts),st);
+  });
+}
+
+/* --- A ojo: estimación --- */
+function rEst(r,st){
+  var it=r.it;markEst(it);
+  var c=el('div','card pop','<div class="tag">Estima la cifra</div><p class="ev">'+it.q+'</p>');
+  var row=el('div','numrow');
+  var inp=el('input');inp.type='text';inp.id='num';inp.inputMode='decimal';inp.placeholder='0';inp.autocomplete='off';
+  inp.setAttribute('aria-label','Tu estimación');
+  row.appendChild(inp);row.appendChild(el('span',null,it.u));
+  var msg=el('div','msg');
+  c.appendChild(row);c.appendChild(msg);st.appendChild(c);
+  var ok=el('button','btn','Confirmar cifra');ok.type='button';st.appendChild(ok);
+  function go(){
+    if(G.done)return;
+    var g=parseNum(inp.value);
+    if(!(g>0)){msg.textContent='Escribe un número mayor que 0.';c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');return;}
+    var a=it.a,err=Math.abs(g-a)/a;
+    var pts=Math.max(0,Math.round(1000*(1-Math.abs(Math.log(g/a))/Math.log(3))));
+    if(err<=0.02)S.tightEst++;
+    inp.disabled=true;ok.remove();msg.textContent='';
+    var cls=pts>=700?'good':pts>=300?'mid':'bad';
+    var pct=Math.round(err*100);
+    var extra='<p>Tu cifra: '+nf(g)+' '+it.u+'. '+(pct===0?'Clavada.':'Te has desviado un '+nf(pct)+' %.')+'</p>';
+    finishRound(pts,1000,fbBox(cls,'Eran '+nf(a)+' '+it.u,pts,extra),st);
+  }
+  ok.addEventListener('click',go);
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go();}});
+}
+
+/* ---------- Fin de partida ---------- */
+function endGame(){
+  if(!G||G.ended)return;
+  G.ended=true;clearInterval(G.iv);
+  var g=G,m=MODES[g.mode],E=$('#end');E.innerHTML='';
+  var avg=g.res.length?g.res.reduce(function(a,b){return a+b;},0)/g.res.length:0;
+  var stars=avg>=0.75?3:avg>=0.5?2:avg>=0.25?1:0;
+  var xp=g.timer?g.correct*4:Math.round(g.score/10)+stars*20;
+  var before=level();
+  S.xp+=xp;S.played++;S.modes[g.mode]=true;
+  if(g.mode!=='daily'){
+    var val=g.timer?g.correct:g.score;
+    if(val>(S.best[g.mode]||0))S.best[g.mode]=val;
+  }
+  if(g.score>S.bestScore&&!g.timer)S.bestScore=g.score;
+  if(g.timer&&g.correct>S.timerBest)S.timerBest=g.correct;
+
+  var today=todayStr(),firstDaily=false;
+  if(g.mode==='daily'&&S.dailyDate!==today){
+    firstDaily=true;
+    S.dailyStreak=(S.dailyDate===yesterdayStr())?S.dailyStreak+1:1;
+    S.dailyDate=today;S.dailyScores[today]=g.score;
+    if(S.dailyStreak>S.bestDailyStreak)S.bestDailyStreak=S.dailyStreak;
+  }
+  var bonus=g.timer?0:stars*5+(firstDaily?20:0);
+  var coinsBefore=S.coins;S.coins+=bonus;coinShown=coinsBefore;pendingFly=0;
+  var got=checkAch();save();
+
+  var c=el('div','card endcard pop');
+  var head=g.timer?(g.lives<=0?'Sin vidas':'Se acabó el tiempo'):(stars===3?'¡Memoria de elefante!':stars===2?'Muy buena partida':stars===1?'Vas calentando':'A la próxima sale');
+  c.innerHTML='<div class="tag">'+m.name+'</div><h2>'+head+'</h2><div class="score">'+nf(g.score)+'</div>';
+  if(g.timer){c.appendChild(el('p',null,'<b>'+g.correct+'</b> aciertos · récord '+S.timerBest));}
+  else{
+    var sd=el('div','stars');for(var i=0;i<3;i++){sd.appendChild(el('i',i<stars?'on':''));}c.appendChild(sd);
+    var sq=el('div','squares');
+    g.res.forEach(function(x){sq.appendChild(el('i',x>=0.7?'g':x>=0.3?'y':'r'));});
+    c.appendChild(sq);
+  }
+  c.appendChild(el('div','xpgain','Partida: +'+lus(g.coins+bonus)+(bonus?' (bonus de '+bonus+')':'')));
+  c.appendChild(el('div','coinpill big','<i class="coin"></i><b class="cn">0</b>'));
+  c.appendChild(el('div','xpgain','+'+xp+' XP'+(level()>before?' · ¡Subes al nivel '+level()+'!':'')));
+  E.appendChild(c);
+
+  if(g.mode==='daily'){
+    var sqs=g.res.map(function(x){return x>=0.7?'🟩':x>=0.3?'🟨':'🟥';}).join('');
+    var text='Circa Adivina · '+today+'\n'+sqs+'\n'+nf(g.score)+' puntos';
+    var ta=el('textarea','share');ta.readOnly=true;ta.value=text;ta.id='share';
+    ta.setAttribute('aria-label','Resultado para compartir');
+    var cp=el('button','btn alt','Copiar resultado');cp.type='button';
+    cp.addEventListener('click',function(){
+      var fallback=function(){ta.focus();ta.select();cp.textContent='Selecciona y copia el texto';};
+      try{navigator.clipboard.writeText(text).then(function(){cp.textContent='Copiado';},fallback);}catch(e){fallback();}
+    });
+    E.appendChild(ta);E.appendChild(cp);
+  }
+  var again=el('button','btn',g.mode==='daily'?'Probar otro modo':'Jugar otra vez');again.type='button';
+  again.addEventListener('click',function(){if(g.mode==='daily')renderHome();else start(g.mode);});
+  var home=el('button','btn alt','Inicio');home.type='button';home.addEventListener('click',renderHome);
+  E.appendChild(again);E.appendChild(home);
+  show('end');setCoinNum(coinShown);
+  if(bonus>0)setTimeout(function(){coinFx(bonus);},650);
+  got.forEach(function(n,i){setTimeout(function(){toast('Logro: <b>'+n+'</b>');},400+i*900);});
+}
+
+applyTheme(S.theme);
+renderHome();
+})();
+</script>
+
+</body></html>
