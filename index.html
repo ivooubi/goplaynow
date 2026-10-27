@@ -225,6 +225,39 @@ body.hit .app{animation:shakeAll .45s}
 .pg2{height:8px;border-radius:9px;background:var(--paper2);border:2px solid var(--ink);margin-top:6px;overflow:hidden}
 .pg2 i{display:block;height:100%;background:var(--ink)}
 .plain{font-size:15px;color:#2b2e5e}
+.game{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:14px;align-items:center;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:14px;min-width:0}
+.game:active:not(.soon){transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.game:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.game .gi{flex:none;width:58px;height:58px;border-radius:14px;background:var(--ink);color:var(--accent);display:grid;place-items:center;font:800 18px var(--display)}
+.game .tx{flex:1;min-width:0}
+.game .tx b{display:block;font:800 22px/1 var(--display)}
+.game .tx p{font-size:14px;line-height:1.3;margin-top:4px}
+.game .tx em{display:block;font:500 12px var(--mono);font-style:normal;color:#5a5f99;margin-top:6px}
+.game .go{flex:none;font:800 26px var(--display)}
+.game.soon{cursor:default;border-style:dashed;opacity:.8;box-shadow:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:3px solid var(--ink);background:var(--paper2);color:var(--ink);border-radius:99px;padding:8px 14px;font:700 15px var(--body);cursor:pointer}
+.chip.sel{background:var(--accent);box-shadow:0 3px 0 var(--ink)}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.step{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.step b{font:500 44px var(--mono)}
+.step .btn{width:68px;font-size:24px}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.names input{min-width:0;font:500 16px var(--body);color:var(--ink);background:var(--paper2);border:3px solid var(--ink);border-radius:12px;padding:10px}
+.pal-board{display:grid;gap:6px;max-width:320px;margin:0 auto;width:100%}
+.pal-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.wt{aspect-ratio:1;display:grid;place-items:center;font:800 clamp(24px,8vw,34px) var(--display);background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:10px}
+.wt.f{background:var(--paper2);animation:pop .12s}
+.wt.c{--c:var(--good);background:var(--c)}.wt.p{--c:var(--accent);background:var(--c)}.wt.a{--c:#9aa0d6;background:var(--c)}
+.wt.rv{animation:reveal .5s both}
+@keyframes reveal{0%{transform:rotateX(0);background:var(--paper)}49%{transform:rotateX(90deg);background:var(--paper)}51%{transform:rotateX(90deg);background:var(--c)}100%{transform:rotateX(0);background:var(--c)}}
+.pal-row.shake{animation:shake .35s}
+.kb{display:flex;flex-direction:column;gap:6px;max-width:520px;width:100%}
+.kr{display:flex;gap:4px;justify-content:center}
+.key{flex:1 1 0;min-width:0;height:50px;border:2px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);font:700 15px var(--body);padding:0;cursor:pointer;box-shadow:0 2px 0 var(--ink)}
+.key:active{transform:translateY(2px);box-shadow:none}
+.key.w{flex:1.6}
+.key.c{background:var(--good)}.key.p{background:var(--accent)}.key.a{background:#9aa0d6;opacity:.75}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -243,6 +276,9 @@ body.hit .app{animation:shakeAll .45s}
   <section id="logros" hidden></section>
   <section id="premios" hidden></section>
   <section id="tienda" hidden></section>
+  <section id="portal" hidden></section>
+  <section id="impostor" hidden></section>
+  <section id="palabra" hidden></section>
 </div>
 <div id="toast" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
@@ -697,7 +733,7 @@ function yesterdayStr(){var d=new Date();d.setDate(d.getDate()-1);return todaySt
 function level(){return 1+Math.floor(S.xp/250);}
 var TITLES=['Curioso','Aprendiz','Cronista','Historiador','Erudito','Maestro del tiempo','Leyenda'];
 function title(){return TITLES[Math.min(level()-1,TITLES.length-1)];}
-function show(id){['home','game','end','logros','premios','tienda'].forEach(function(s){$('#'+s).hidden=(s!==id);});window.scrollTo(0,0);}
+function show(id){['home','game','end','logros','premios','tienda','portal','impostor','palabra'].forEach(function(s){$('#'+s).hidden=(s!==id);});window.scrollTo(0,0);}
 function toast(html){var t=el('div',null,html);$('#toast').appendChild(t);setTimeout(function(){t.remove();},3800);}
 function parseNum(s){
   s=String(s).trim().replace(/\s/g,'');
@@ -876,7 +912,7 @@ function renderPremios(keep){
   var P=$('#premios');P.innerHTML='';
   if(pendingFly<=0)coinShown=S.coins;
   var back=el('button','ghost','Volver');back.type='button';back.style.alignSelf='flex-start';
-  back.addEventListener('click',renderHome);P.appendChild(back);
+  back.addEventListener('click',function(){(retFn||renderPortal)();});P.appendChild(back);
   P.appendChild(el('div','top','<h2 class="brand" style="font-size:40px">Premios</h2><div class="coinpill big"><i class="coin"></i><b class="cn">0</b></div>'));
   P.appendChild(el('div','card plain','<b>Las chispas</b> son la moneda de GoPlayNow. Cada ronda da hasta 10 según lo cerca que estés. Año exacto: +5. Racha de tres aciertos: +2. Desafío diario: +20 la primera vez cada día. Una pista en Circa cuesta 25.'));
   var gt=el('button','shop','<span class="ic">🛒</span><div class="tx"><b>Ir a la tienda</b><span>Gasta tus chispas en temas de color</span></div><span class="go">›</span>');
@@ -905,7 +941,7 @@ function renderTienda(keep){
   var P=$('#tienda');P.innerHTML='';
   if(pendingFly<=0)coinShown=S.coins;
   var back=el('button','ghost','Volver');back.type='button';back.style.alignSelf='flex-start';
-  back.addEventListener('click',renderHome);P.appendChild(back);
+  back.addEventListener('click',function(){(retFn||renderPortal)();});P.appendChild(back);
   P.appendChild(el('div','top','<h2 class="brand" style="font-size:40px">Tienda</h2><div class="coinpill big"><i class="coin"></i><b class="cn">0</b></div>'));
   P.appendChild(el('div','card plain','Gasta tus chispas en temas de color. Se aplican al instante en todo GoPlayNow.'));
   P.appendChild(el('div','sect','Temas de color'));
@@ -935,9 +971,10 @@ var flagTimer=null;
 function renderHome(){
   var h=$('#home');h.innerHTML='';
   if(pendingFly<=0)coinShown=S.coins;
-  var lv=level(),prog=(S.xp%250)/250*100;
+  retFn=renderHome;var lv=level(),prog=(S.xp%250)/250*100;
+  var bk=el('button','ghost','← Juegos');bk.type='button';bk.style.alignSelf='flex-start';bk.addEventListener('click',renderPortal);h.appendChild(bk);
   var top=el('div','top');
-  top.innerHTML='<h1 class="brand">GoPlayNow<small>adivina · aprende · juega</small></h1><div class="lvl"><div><b>Nv. '+lv+' · '+title()+'</b><span>'+nf(S.xp)+' XP</span><div class="xp"><i style="width:'+prog+'%"></i></div></div><div class="coinpill"><i class="coin"></i><b class="cn">0</b></div></div>';
+  top.innerHTML='<h1 class="brand">Circa<small>adivina el año</small></h1><div class="lvl"><div><b>Nv. '+lv+' · '+title()+'</b><span>'+nf(S.xp)+' XP</span><div class="xp"><i style="width:'+prog+'%"></i></div></div><div class="coinpill"><i class="coin"></i><b class="cn">0</b></div></div>';
   h.appendChild(top);
 
   var aff=THEMES.some(function(t){return !S.owned[t.id]&&S.coins>=t.price;});
@@ -1003,6 +1040,324 @@ function renderLogros(){
   L.appendChild(box);
   show('logros');
 }
+
+/* ======================= PORTAL ======================= */
+var retFn=null,IM=null;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var GAMES=[
+ {n:'Circa',ic:'AÑO',d:'Historia y cultura general: acierta el año, ordena sucesos y estima cifras.',t:'Solo · 6 modos',go:function(){renderHome();}},
+ {n:'El Impostor',ic:'🕵️',d:'Una palabra secreta, un impostor entre vosotros y un reloj en marcha.',t:'3–12 jugadores · un solo móvil',go:function(){renderImp(false);}},
+ {n:'Palabreo',ic:'ABC',d:'Adivina la palabra de 5 letras en 6 intentos. Hay una nueva cada día.',t:'Solo · nueva cada día · juega días anteriores',go:function(){renderPal();}}
+];
+function renderPortal(){
+  retFn=renderPortal;clearInterval(flagTimer);if(IM)clearInterval(IM.iv);
+  var h=$('#portal');h.innerHTML='';
+  if(pendingFly<=0)coinShown=S.coins;
+  var top=el('div','top');
+  top.innerHTML='<h1 class="brand">GoPlayNow<small>tu portal de juegos</small></h1><div class="lvl"><div><b>Nv. '+level()+' · '+title()+'</b><span>'+nf(S.xp)+' XP</span><div class="xp"><i style="width:'+(S.xp%250)/250*100+'%"></i></div></div><div class="coinpill"><i class="coin"></i><b class="cn">0</b></div></div>';
+  h.appendChild(top);
+  var aff=THEMES.some(function(t){return !S.owned[t.id]&&S.coins>=t.price;});
+  var sb=el('button','shop','<span class="ic">🛒</span><div class="tx"><b>Tienda</b><span>'+(aff?'Ya puedes estrenar un tema nuevo':'Gasta tus chispas en temas de color')+'</span></div>'+(aff?'<span class="new">¡NUEVO!</span>':'<span class="go">›</span>'));
+  sb.type='button';sb.addEventListener('click',function(){renderTienda(false);});h.appendChild(sb);
+  h.appendChild(el('div','sect','Juegos'));
+  GAMES.forEach(function(g){
+    var b=el('button','game','<span class="gi">'+g.ic+'</span><div class="tx"><b>'+g.n+'</b><p>'+g.d+'</p><em>'+g.t+'</em></div><span class="go">›</span>');
+    b.type='button';b.addEventListener('click',g.go);h.appendChild(b);
+  });
+  h.appendChild(el('div','game soon','<span class="gi">+</span><div class="tx"><b>Próximamente</b><p>Más juegos en camino. Todos comparten tus chispas y tu nivel.</p></div>'));
+  show('portal');setCoinNum(coinShown);
+}
+
+/* ======================= EL IMPOSTOR ======================= */
+var IMPW={
+ 'Animales':['Perro','Gato','Elefante','Jirafa','Delfín','Pingüino','Águila','Tiburón','Canguro','Mono','León','Tortuga','Búho','Cebra','Lobo','Pulpo','Cocodrilo','Murciélago'],
+ 'Comida':['Pizza','Paella','Tortilla de patatas','Sushi','Hamburguesa','Helado','Chocolate','Croquetas','Churros','Tacos','Jamón','Sandía','Lasaña','Gazpacho','Palomitas','Flan','Queso','Sopa'],
+ 'Lugares':['Playa','Biblioteca','Aeropuerto','Hospital','Cine','Gimnasio','Museo','Circo','Supermercado','Estadio','Discoteca','Castillo','Granja','Piscina','Estación de tren','Parque de atracciones','Colegio','Faro'],
+ 'Objetos':['Paraguas','Gafas de sol','Mochila','Espejo','Llaves','Reloj','Guitarra','Cámara','Linterna','Tijeras','Almohada','Bicicleta','Microondas','Mando de la tele','Cepillo de dientes','Globo','Maleta','Patinete'],
+ 'Profesiones':['Médico','Bombero','Profesor','Cocinero','Piloto','Policía','Astronauta','Fotógrafo','Fontanero','Veterinario','Peluquero','Arquitecto','Cartero','Payaso','Detective','Mago','Youtuber','Camarero'],
+ 'Deportes':['Fútbol','Baloncesto','Tenis','Natación','Ciclismo','Boxeo','Esquí','Golf','Surf','Ajedrez','Balonmano','Pádel','Atletismo','Escalada','Rugby','Skate','Voleibol','Judo']
+};
+var IMC=Object.keys(IMPW);
+function impCfg(){if(!S.imp)S.imp={n:5,imp:1,cat:'Mezcla',time:300,hint:true,names:[]};return S.imp;}
+function chips(opts,cur,fn){
+  var d=el('div','chips');
+  opts.forEach(function(o){var b=el('button','chip'+(o.v===cur?' sel':''),o.l);b.type='button';if(o.off)b.disabled=true;b.addEventListener('click',function(){fn(o.v);});d.appendChild(b);});
+  return d;
+}
+function ghostBtn(P,label,fn){var b=el('button','ghost',label);b.type='button';b.style.alignSelf='flex-start';b.addEventListener('click',fn);P.appendChild(b);}
+function mkBtn(P,label,cls,fn){var b=el('button','btn'+(cls?' '+cls:''),label);b.type='button';b.addEventListener('click',fn);P.appendChild(b);return b;}
+function imShell(){var P=$('#impostor');P.innerHTML='';return P;}
+function fmt(ms){var s=Math.ceil(ms/1000),m=Math.floor(s/60);s=s%60;return m+':'+(s<10?'0':'')+s;}
+
+function renderImp(keep){
+  var y=keep?window.scrollY:0;
+  retFn=renderPortal;if(IM)clearInterval(IM.iv);
+  var P=imShell(),C=impCfg();
+  if(C.imp===2&&C.n<7)C.imp=1;
+  ghostBtn(P,'← Juegos',renderPortal);
+  P.appendChild(el('div','top','<h2 class="brand">Impostor<small>un móvil · 3–12 jugadores</small></h2>'));
+  var c1=el('div','card');c1.appendChild(el('div','tag','Jugadores'));
+  var st=el('div','step');
+  var mn=el('button','btn alt small','−'),mx=el('button','btn alt small','+');
+  mn.type='button';mx.type='button';mn.disabled=C.n<=3;mx.disabled=C.n>=12;
+  mn.setAttribute('aria-label','Menos jugadores');mx.setAttribute('aria-label','Más jugadores');
+  mn.addEventListener('click',function(){C.n--;save();renderImp(true);});
+  mx.addEventListener('click',function(){C.n++;save();renderImp(true);});
+  st.appendChild(mn);st.appendChild(el('b',null,String(C.n)));st.appendChild(mx);c1.appendChild(st);
+  var nm=el('div','names');
+  for(var i=0;i<C.n;i++){(function(i){
+    var inp=el('input');inp.type='text';inp.maxLength=14;inp.placeholder='Jugador '+(i+1);inp.value=C.names[i]||'';
+    inp.setAttribute('aria-label','Nombre del jugador '+(i+1));
+    inp.addEventListener('input',function(){C.names[i]=inp.value;save();});nm.appendChild(inp);
+  })(i);}
+  c1.appendChild(nm);P.appendChild(c1);
+  var c2=el('div','card');c2.appendChild(el('div','tag','Impostores'));
+  c2.appendChild(chips([{v:1,l:'1'},{v:2,l:'2 (desde 7 jugadores)',off:C.n<7}],C.imp,function(v){C.imp=v;save();renderImp(true);}));P.appendChild(c2);
+  var c3=el('div','card');c3.appendChild(el('div','tag','Categoría'));
+  c3.appendChild(chips([{v:'Mezcla',l:'Mezcla'}].concat(IMC.map(function(k){return {v:k,l:k};})),C.cat,function(v){C.cat=v;save();renderImp(true);}));P.appendChild(c3);
+  var c4=el('div','card');c4.appendChild(el('div','tag','Tiempo de debate'));
+  c4.appendChild(chips([2,3,5,8,10].map(function(m){return {v:m*60,l:m+' min'};}),C.time,function(v){C.time=v;save();renderImp(true);}));P.appendChild(c4);
+  var c5=el('div','card');c5.appendChild(el('div','tag','El impostor ve la categoría'));
+  c5.appendChild(chips([{v:true,l:'Sí, como pista'},{v:false,l:'No, a ciegas'}],C.hint,function(v){C.hint=v;save();renderImp(true);}));P.appendChild(c5);
+  mkBtn(P,'Empezar partida','',impStart);
+  show('impostor');if(y)window.scrollTo(0,y);
+}
+
+function impStart(){
+  var C=impCfg(),n=C.n;
+  var cat=C.cat==='Mezcla'?IMC[Math.floor(Math.random()*IMC.length)]:C.cat;
+  var w=IMPW[cat][Math.floor(Math.random()*IMPW[cat].length)];
+  if(IM)clearInterval(IM.iv);
+  IM={names:range(n).map(function(i){return (C.names[i]||'').trim()||'Jugador '+(i+1);}),imps:pick(range(n),C.imp),word:w,cat:cat,i:0,starter:Math.floor(Math.random()*n),sel:[],left:0,total:0,end:0,run:false,iv:null};
+  impReveal();
+}
+
+function impReveal(){
+  var P=imShell();
+  ghostBtn(P,'Salir',function(){renderImp(false);});
+  P.appendChild(el('div','card endcard pop','<div class="tag">Jugador '+(IM.i+1)+' de '+IM.names.length+'</div><p>Pasa el móvil a</p><div class="score" style="font-size:clamp(34px,11vw,52px);word-break:break-word">'+esc(IM.names[IM.i])+'</div><p class="plain">Que nadie más mire la pantalla.</p>'));
+  mkBtn(P,'Ver mi rol','',impRole);
+  show('impostor');
+}
+
+function impRole(){
+  var P=imShell(),C=impCfg(),isI=IM.imps.indexOf(IM.i)>-1;
+  P.appendChild(el('div','card endcard pop',isI
+    ?'<div class="tag">'+esc(IM.names[IM.i])+' · tu rol</div><h2 style="color:#d6001c;font-size:46px">IMPOSTOR</h2><p>No conoces la palabra. Escucha, disimula y que no te pillen.</p>'+(C.hint?'<div class="xpgain">Pista: la categoría es <b>'+IM.cat+'</b></div>':'')
+    :'<div class="tag">'+esc(IM.names[IM.i])+' · tu palabra</div><div class="ev" style="font-size:clamp(32px,10vw,46px);margin:0">'+IM.word+'</div><div class="xpgain">Categoría: '+IM.cat+'</div><p>Da pistas sin decirla. Hay un impostor entre vosotros.</p>'));
+  var last=IM.i>=IM.names.length-1;
+  mkBtn(P,last?'Ocultar y empezar':'Ocultar y pasar al siguiente','',function(){IM.i++;if(IM.i>=IM.names.length)impTalk();else impReveal();});
+  show('impostor');
+}
+
+function impTalk(){
+  var P=imShell();clearInterval(IM.iv);
+  IM.left=impCfg().time*1000;IM.total=IM.left;IM.end=Date.now()+IM.left;IM.run=true;
+  P.appendChild(el('div','card endcard','<div class="tag">Ronda de pistas</div><p>Empieza <b>'+esc(IM.names[IM.starter])+'</b>. Por turnos, cada uno dice una pista sobre la palabra.</p><div class="score" id="imT">'+fmt(IM.left)+'</div><div class="bar" style="width:100%"><i id="imB" style="width:100%"></i></div>'));
+  var row=el('div','row');P.appendChild(row);
+  var pa=el('button','btn alt small','Pausar'),pl=el('button','btn alt small','+1 min');
+  pa.type='button';pl.type='button';row.appendChild(pa);row.appendChild(pl);
+  pa.addEventListener('click',function(){
+    if(IM.run){IM.left=IM.end-Date.now();IM.run=false;pa.textContent='Seguir';}
+    else{IM.end=Date.now()+IM.left;IM.run=true;pa.textContent='Pausar';}
+  });
+  pl.addEventListener('click',function(){
+    IM.left=(IM.run?IM.end-Date.now():IM.left)+60000;IM.total+=60000;if(IM.run)IM.end=Date.now()+IM.left;
+    $('#imT').textContent=fmt(IM.left);
+  });
+  mkBtn(P,'Votar ya','dark',impVote);
+  IM.iv=setInterval(function(){
+    if($('#impostor').hidden){clearInterval(IM.iv);return;}
+    if(!IM.run)return;
+    IM.left=IM.end-Date.now();
+    var t=$('#imT'),b=$('#imB');
+    if(IM.left<=0){
+      IM.run=false;clearInterval(IM.iv);beep([[880,0.2],[880,0.2],[1320,0.5]]);
+      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      toast('<b>¡Se acabó el tiempo!</b> A votar');impVote();return;
+    }
+    if(t){t.textContent=fmt(IM.left);t.style.color=IM.left<=30000?'#d6001c':'';}
+    if(b)b.style.width=(IM.left/IM.total*100)+'%';
+  },250);
+  show('impostor');
+}
+
+function impVote(){
+  clearInterval(IM.iv);IM.sel=[];
+  var P=imShell(),k=IM.imps.length;
+  var c=el('div','card pop','<div class="tag">Votación</div><p class="ev">¿Quién es el impostor?</p><p class="plain" style="margin-top:6px">Poneos de acuerdo y elegid '+(k===1?'a 1 sospechoso':k+' sospechosos')+'.</p>');
+  var ul=el('div','ord');
+  var go=el('button','btn','Desvelar');go.type='button';go.disabled=true;
+  var bs=IM.names.map(function(nm,i){
+    var b=el('button',null,'<span class="n"></span><span>'+esc(nm)+'</span>');b.type='button';
+    b.addEventListener('click',function(){
+      var j=IM.sel.indexOf(i);
+      if(j>-1)IM.sel.splice(j,1);else{if(IM.sel.length>=k)IM.sel.shift();IM.sel.push(i);}
+      bs.forEach(function(x){var q=IM.sel.indexOf(x.i);x.b.classList.toggle('sel',q>-1);x.b.querySelector('.n').textContent=q>-1?'✓':'';});
+      go.disabled=IM.sel.length!==k;
+    });
+    ul.appendChild(b);return {b:b,i:i};
+  });
+  c.appendChild(ul);P.appendChild(c);P.appendChild(go);
+  go.addEventListener('click',impVerdict);
+  show('impostor');
+}
+
+function impVerdict(){
+  var caught=IM.sel.every(function(i){return IM.imps.indexOf(i)>-1;});
+  if(!caught){impEnd('imp','Habéis acusado a quien no era.');return;}
+  var P=imShell();
+  P.appendChild(el('div','card endcard pop','<div class="tag">¡Lo pillasteis!</div><h2>Última oportunidad</h2><p>El impostor tiene un intento para decir la palabra secreta en voz alta. ¿Acertó?</p>'));
+  mkBtn(P,'Sí, acertó la palabra','',function(){impEnd('imp','El impostor se escapa adivinando la palabra.');});
+  mkBtn(P,'No, falló','alt',function(){impEnd('civ','Impostor descubierto y sin palabra.');});
+  show('impostor');
+}
+
+function impEnd(win,why){
+  var P=imShell();
+  S.coins+=10;S.impPlayed=(S.impPlayed||0)+1;save();coinShown=S.coins;
+  fx(win==='civ'?'good':'mid',0,{});
+  var c=el('div','card endcard pop','<div class="tag">Resultado</div><h2>'+(win==='civ'?'¡Ganan los civiles!':'¡Gana el impostor!')+'</h2><p>'+why+'</p><div class="xpgain">La palabra era</div><div class="ev" style="margin:0;font-size:34px">'+IM.word+'</div><div class="xpgain">'+IM.cat+'</div>');
+  var ol=el('div','ord');ol.style.width='100%';
+  IM.names.forEach(function(nm,i){var isI=IM.imps.indexOf(i)>-1;ol.appendChild(el('li',isI?'no':'ok','<span>'+esc(nm)+'</span><span class="y">'+(isI?'IMPOSTOR':'civil')+'</span>'));});
+  c.appendChild(ol);
+  c.appendChild(el('div','xpgain','+'+lus(10)+' por jugar'));
+  c.appendChild(el('div','coinpill big','<i class="coin"></i><b class="cn">0</b>'));
+  P.appendChild(c);
+  mkBtn(P,'Otra ronda','',impStart);
+  mkBtn(P,'Cambiar ajustes','alt',function(){renderImp(false);});
+  mkBtn(P,'Todos los juegos','alt',renderPortal);
+  show('impostor');setCoinNum(coinShown);
+}
+
+/* ======================= PALABREO (palabra diaria) ======================= */
+var WSTART='2026-10-01';
+var WLIST=('ABEJA ABRIL ACERO ACTOR AGUJA AHORA AIRES ALDEA ALMAS ALTAR AMIGO ANCHO ANGEL ANTES ARBOL ARENA ARROZ ASADO ATLAS AUDIO AVION AYUDA BAILE BAJAR BALON BANCO BARCO BARRO BASES BEBER BESAR BESOS BICHO BLUSA BOCAS BOLSA BOMBA BORDE BRAZO BREVE BRISA BROMA BRUJA BUENO BURRO CABER CABLE CAIDA CAJAS CALMA CALOR CAMPO CANAL CANTO CARGA CARNE CARTA CASAS CAUSA CEBRA CERCA CERDO CERRO CESTA CHICA CHICO CIELO CINCO CIRCO CITAS CLARO CLASE CLAVE COBRE COCHE COMER COSAS COSTA CREAR CRUDO CUEVA CURVA DADOS DANZA DEBIL DEDOS DEJAR DENSO DIGNO DIOSA DISCO DOLOR DONDE DUDAR DULCE ENTRE EPOCA ERROR ESTAR ETAPA FALDA FALSO FELIZ FERIA FIBRA FIERA FIJAR FILAS FINAL FIRMA FLORA FLUIR FONDO FORMA FRASE FRESA FRUTA FUEGO FUERA FUMAR GAFAS GALLO GANAR GASTO GATOS GENIO GENTE GIRAR GLOBO GOLPE GORDO GRADO GRAMO GRANO GRASA GRAVE GRITO GRUPO GUAPO GUSTO HABLA HACER HADAS HARTO HECHO HIELO HIJOS HOGAR HOJAS HORAS HOTEL HUESO HUEVO HUMOR IDEAL IGUAL ISLAS JAMON JARRA JAULA JEFES JOVEN JUEGO JUGAR JUNIO JUNTO JURAR JUSTO LADOS LAGOS LAPIZ LARGO LATIR LECHE LEJOS LENTO LETRA LIBRE LIBRO LIMON LINEA LISTA LLAVE LLENO LOBOS LOCOS LUCES LUGAR LUNES MADRE MAGIA MALOS MANGO MANOS MARCA MARZO MASAS MAYOR MEDIA MEJOR MENOS MENTE MESAS METAL METRO MIEDO MISMO MONTE MORIR MOTOR MOVER MUCHO MUDAR MUNDO MURAL MUSEO NACER NADAR NARIZ NAVES NEGRO NIEVE NOCHE NORTE NOTAS NUBES NUEVE NUEVO OBRAS OLIVA ONDAS OPERA ORDEN OSITO OTOÑO PADRE PAGAR PALMA PANAL PAPEL PARAR PARED PARTE PASAR PASEO PASOS PATIO PAUSA PECES PEDIR PEGAR PELEA PELOS PENAS PERRO PESAR PIANO PICAR PILAS PINTA PISAR PISOS PIZZA PLAYA PLAZA PLUMA POBRE PODER POEMA POLLO POLVO PONER PORTE POSTE PRADO PRESO PRIMA PRIMO PRISA PUEDE PULGA PUNTO RADIO RAMAS RAZON REINO RELOJ RENTA RESTO RETOS RICOS RISAS ROBAR ROCAS RONDA ROSAS RUEDA RUMBO SABER SABIO SACAR SALAS SALIR SALSA SALTO SALUD SANTO SELVA SENDA SERIE SIGLO SILLA SITIO SOBRE SOLAR SONAR SUAVE SUBIR SUELO SUEÑO SUPER TABLA TALLA TANTO TARDE TAZAS TECHO TELAS TEMAS TENER TIGRE TINTA TIPOS TIRAR TOCAR TODOS TOMAR TONTO TORRE TORTA TOTAL TRAER TRAJE TRATO TRIGO TROZO TRUCO TURNO UNIDO USADO VACAS VALER VALLE VAPOR VASOS VELAS VENIR VERDE VERSO VIAJE VIDAS VIEJO VINOS VISTA VIVIR VOCES VOLAR VUELO YOGUR ZONAS ZORRO').split(' ').filter(function(w,i,a){return w.length===5&&a.indexOf(w)===i;});
+var WPERM=null,PW=null,palShown=14;
+function dnum(ds){var p=ds.split('-');return Math.floor(Date.UTC(+p[0],+p[1]-1,+p[2])/864e5);}
+function wdWord(ds){
+  if(!WPERM){var r=mulberry(hash('palabreo-v1')),a=range(WLIST.length);for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}WPERM=a;}
+  var n=(dnum(ds)-dnum(WSTART))%WLIST.length;if(n<0)n+=WLIST.length;
+  return WLIST[WPERM[n]];
+}
+function wdGet(ds){return (S.wd&&S.wd[ds])||null;}
+function wdRes(ds){if(!S.wd)S.wd={};return S.wd[ds]||(S.wd[ds]={g:[],done:false,won:false,paid:false});}
+function wdDays(){var out=[],d=new Date();d.setHours(12);for(var k=0;k<4000;k++){var s=todayStr(d);if(s<WSTART)break;out.push(s);d.setDate(d.getDate()-1);}return out;}
+function dateLabel(ds){var p=ds.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});}
+function wdEval(g,w){
+  var r=[0,0,0,0,0],cnt={},i;
+  for(i=0;i<5;i++){if(g[i]===w[i])r[i]=2;else cnt[w[i]]=(cnt[w[i]]||0)+1;}
+  for(i=0;i<5;i++){if(r[i]!==2&&cnt[g[i]]>0){r[i]=1;cnt[g[i]]--;}}
+  return r;
+}
+function wdStats(){
+  var days=wdDays(),w=0,p=0,st=0,i=0;
+  days.forEach(function(ds){var r=wdGet(ds);if(r&&r.done){p++;if(r.won)w++;}});
+  var r0=wdGet(days[0]);if(!(r0&&r0.won))i=1;
+  for(;i<days.length;i++){var r=wdGet(days[i]);if(r&&r.won)st++;else break;}
+  return {w:w,p:p,st:st};
+}
+
+function renderPal(){
+  retFn=renderPortal;
+  var P=$('#palabra');P.innerHTML='';
+  ghostBtn(P,'← Juegos',renderPortal);
+  P.appendChild(el('div','top','<h2 class="brand">Palabreo<small>una palabra nueva cada día</small></h2>'));
+  var days=wdDays(),today=days[0],r=wdGet(today),stt=wdStats();
+  var dc=el('div','card daily');
+  dc.innerHTML='<div class="tag">Palabra de hoy · '+today+'</div><h2>'+(r&&r.done?(r.won?'¡Resuelta en '+r.g.length+'/6!':'Hoy no ha podido ser'):(r&&r.g.length?'Sigue donde lo dejaste':'Adivina la de 5 letras'))+'</h2><p>Seis intentos. Verde: bien colocada. Amarillo: está, pero en otro sitio.</p><div class="streak">Racha: '+stt.st+(stt.st===1?' día':' días')+' · Resueltas: '+stt.w+'/'+stt.p+'</div>';
+  var db=el('button','btn dark',r&&r.done?'Ver resultado':'Jugar hoy');db.type='button';
+  db.addEventListener('click',function(){palGame(today);});dc.appendChild(db);P.appendChild(dc);
+  if(days.length>1){
+    P.appendChild(el('div','sect','Días anteriores'));
+    var ms=el('div','ms');
+    days.slice(1,1+palShown).forEach(function(ds){
+      var q=wdGet(ds),n=q?q.g.length:0;
+      var stx=q&&q.done?(q.won?'✓ Resuelta en '+n+'/6':'✗ No resuelta'):(n?'En curso · '+n+'/6':'Sin jugar');
+      var card=el('div','card msrow'+(q&&q.done?' done':''),'<div><b>'+dateLabel(ds)+'</b><p>'+stx+'</p></div>');
+      var b=el('button','btn',q&&q.done?'Ver':'Jugar');b.type='button';
+      b.addEventListener('click',function(){palGame(ds);});card.appendChild(b);ms.appendChild(card);
+    });
+    P.appendChild(ms);
+    if(days.length>1+palShown){var mo=el('button','btn alt','Ver más días');mo.type='button';mo.addEventListener('click',function(){palShown+=14;renderPal();});P.appendChild(mo);}
+  }
+  show('palabra');
+}
+
+function palGame(ds){
+  var P=$('#palabra');P.innerHTML='';
+  PW={ds:ds,word:wdWord(ds),res:wdRes(ds),cur:'',busy:false,rows:[],keys:{}};
+  ghostBtn(P,'← Días',function(){renderPal();});
+  P.appendChild(el('div','top','<h2 class="brand" style="font-size:36px">Palabreo<small>'+dateLabel(ds)+'</small></h2>'));
+  var bd=el('div','pal-board');
+  for(var i=0;i<6;i++){
+    var row=el('div','pal-row'),tiles=[];
+    for(var j=0;j<5;j++){var t=el('div','wt');tiles.push(t);row.appendChild(t);}
+    PW.rows.push({el:row,tiles:tiles});bd.appendChild(row);
+  }
+  P.appendChild(bd);
+  PW.res.g.forEach(function(g,i){var ev=wdEval(g,PW.word);PW.rows[i].tiles.forEach(function(t,k){t.textContent=g[k];t.className='wt '+'apc'[ev[k]];});});
+  var kb=el('div','kb');
+  ['QWERTYUIOP','ASDFGHJKLÑ','ZXCVBNM'].forEach(function(line,li){
+    var kr=el('div','kr');
+    if(li===2){var en=el('button','key w','⏎');en.type='button';en.setAttribute('aria-label','Enviar');en.addEventListener('click',function(){palKey('ENTER');});kr.appendChild(en);}
+    line.split('').forEach(function(ch){var b=el('button','key',ch);b.type='button';b.addEventListener('click',function(){palKey(ch);});PW.keys[ch]=b;kr.appendChild(b);});
+    if(li===2){var bk=el('button','key w','⌫');bk.type='button';bk.setAttribute('aria-label','Borrar');bk.addEventListener('click',function(){palKey('BACK');});kr.appendChild(bk);}
+    kb.appendChild(kr);
+  });
+  P.appendChild(kb);
+  palKb();
+  show('palabra');
+  if(PW.res.done)palEnd(PW.res.won,true);
+}
+function palKb(){
+  var best={};
+  PW.res.g.forEach(function(g){var ev=wdEval(g,PW.word);for(var i=0;i<5;i++){if(best[g[i]]===undefined||ev[i]>best[g[i]])best[g[i]]=ev[i];}});
+  for(var ch in PW.keys){var b=PW.keys[ch];b.className='key'+(best[ch]===undefined?'':' '+'apc'[best[ch]]);}
+}
+function palDraw(){
+  var row=PW.rows[PW.res.g.length];if(!row)return;
+  row.tiles.forEach(function(t,i){var c=PW.cur[i]||'';t.textContent=c;t.className='wt'+(c?' f':'');});
+}
+function palKey(k){
+  if(!PW||PW.busy||PW.res.done)return;
+  if(k==='BACK'){PW.cur=PW.cur.slice(0,-1);palDraw();return;}
+  if(k==='ENTER'){palSubmit();return;}
+  if(PW.cur.length<5){PW.cur+=k;palDraw();}
+}
+function palSubmit(){
+  var g=PW.cur,rowI=PW.res.g.length,row=PW.rows[rowI];
+  if(g.length<5){row.el.classList.remove('shake');void row.el.offsetWidth;row.el.classList.add('shake');toast('Faltan letras');return;}
+  var ev=wdEval(g,PW.word),won=g===PW.word;
+  PW.res.g.push(g);PW.cur='';PW.busy=true;
+  var done=won||PW.res.g.length>=6;
+  if(done){PW.res.done=true;PW.res.won=won;}
+  save();
+  row.tiles.forEach(function(t,i){t.className='wt '+'apc'[ev[i]]+' rv';t.style.animationDelay=(i*220)+'ms';});
+  beep([[520,0.08],[660,0.08]]);
+  setTimeout(function(){PW.busy=false;palKb();if(done)palEnd(won,false);},5*220+450);
+}
+function palEnd(won,quiet){
+  var P=$('#palabra'),r=PW.res,n=r.g.length,gain=0;
+  if(!r.paid){r.paid=true;gain=won?5+(7-n)*3:2;S.coins+=gain;coinShown=S.coins;save();}
+  if(!quiet)fx(won?'good':'mid',0,{big:won&&n<=2});
+  var share='GoPlayNow · Palabreo '+PW.ds+' '+(won?n:'X')+'/6\n'+r.g.map(function(g){return wdEval(g,PW.word).map(function(v){return ['⬛','🟨','🟩'][v];}).join('');}).join('\n');
+  var c=el('div','card endcard pop','<div class="tag">'+dateLabel(PW.ds)+'</div><h2>'+(won?(n===1?'¡Increíble!':n<=3?'¡Muy bien!':'¡Resuelta!'):'La palabra era')+'</h2><div class="score" style="font-size:clamp(40px,13vw,60px)">'+PW.word+'</div>'+(gain?'<div class="xpgain">+'+lus(gain)+'</div>':'')+'<div class="coinpill big"><i class="coin"></i><b class="cn">0</b></div>');
+  P.appendChild(c);
+  var cp=mkBtn(P,'Copiar resultado','alt',function(){
+    try{navigator.clipboard.writeText(share).then(function(){cp.textContent='Copiado';},function(){toast('No se pudo copiar');});}catch(e){toast('No se pudo copiar');}
+  });
+  mkBtn(P,'Ver más días','',function(){renderPal();});
+  mkBtn(P,'Todos los juegos','alt',renderPortal);
+  setCoinNum(coinShown);
+  if(!quiet)setTimeout(function(){c.scrollIntoView({block:'nearest',behavior:'smooth'});},60);
+}
+document.addEventListener('keydown',function(e){
+  if(!PW||$('#palabra').hidden||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==='Enter'){e.preventDefault();palKey('ENTER');}
+  else if(e.key==='Backspace'){palKey('BACK');}
+  else{var u=String(e.key).toUpperCase();if(/^[A-ZÑ]$/.test(u))palKey(u);}
+});
 
 /* ---------- Partida ---------- */
 var G=null;
@@ -1295,7 +1650,7 @@ function endGame(){
 }
 
 applyTheme(S.theme);
-renderHome();
+renderPortal();
 })();
 </script>
 </body></html>
